@@ -1,0 +1,244 @@
+###
+# TicketDaata Authentication Service API Testing
+# Simplified Auth Service with only Register, Login, and Logout
+###
+
+### Variables
+@baseUrl = http://localhost:9003
+@authUrl = http://localhost:9001
+@registryUrl = http://localhost:8761
+
+###
+# 1. SERVICE HEALTH CHECK
+# Check if Service Registry is running
+GET {{registryUrl}}
+Accept: text/html
+
+### Check registered services
+GET {{registryUrl}}/eureka/apps
+Accept: application/json
+
+###
+# 2. USER REGISTRATION
+# Register a new regular user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "email": "john@ticketdaata.com",
+  "password": "password123",
+  "role": "USER"
+}
+
+### Register an admin user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin_user",
+  "email": "admin@ticketdaata.com",
+  "password": "admin123",
+  "role": "ADMIN"
+}
+
+### Register another user for testing
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "jane_smith",
+  "email": "jane@ticketdaata.com",
+  "password": "jane123",
+  "role": "USER"
+}
+
+###
+# 3. USER LOGIN
+# Login with valid credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "password123"
+}
+
+### Login with admin credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin_user",
+  "password": "admin123"
+}
+
+### Login with jane's credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "jane_smith",
+  "password": "jane123"
+}
+
+###
+# 4. USER LOGOUT
+# Logout (stateless JWT - handled client-side)
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+###
+# 5. ERROR HANDLING TESTS
+# Test duplicate username registration
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "email": "different@email.com",
+  "password": "password123",
+  "role": "USER"
+}
+
+### Test duplicate email registration
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "different_user",
+  "email": "john@ticketdaata.com",
+  "password": "password123",
+  "role": "USER"
+}
+
+### Test invalid login credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "wrong_password"
+}
+
+### Test login with non-existent user
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "non_existent",
+  "password": "password123"
+}
+
+### Test registration with missing fields
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Test registration with invalid email
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "test_user2",
+  "email": "invalid-email-format",
+  "password": "password123",
+  "role": "USER"
+}
+
+###
+# 6. DIRECT SERVICE TESTING (Bypassing API Gateway)
+# Test Auth Service directly
+
+### Direct registration
+POST {{authUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "direct_user",
+  "email": "direct@ticketdaata.com",
+  "password": "direct123",
+  "role": "USER"
+}
+
+### Direct login
+POST {{authUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "direct_user",
+  "password": "direct123"
+}
+
+### Direct logout
+POST {{authUrl}}/auth/logout
+Content-Type: application/json
+
+###
+# 7. INTEGRATION FLOW TEST
+# Complete user journey
+
+### Step 1: Register a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "integration_test",
+  "email": "integration@ticketdaata.com",
+  "password": "integration123",
+  "role": "USER"
+}
+
+### Step 2: Login with the new user (save the token from response)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "integration_test",
+  "password": "integration123"
+}
+
+### Step 3: Logout
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+###
+# 8. FUTURE SERVICE ENDPOINTS (Will return 404 until implemented)
+# These routes are configured in API Gateway for future services
+
+### User Service (Future)
+GET {{baseUrl}}/api/users/profile
+Accept: application/json
+
+### Ticket Service (Future)
+GET {{baseUrl}}/api/tickets
+Accept: application/json
+
+### Event Service (Future)
+GET {{baseUrl}}/api/events
+Accept: application/json
+
+###
+# CURL COMMANDS (Copy these for terminal testing)
+###
+
+# Register User:
+# curl -X POST http://localhost:9003/auth/register \
+#   -H "Content-Type: application/json" \
+#   -d '{"username":"curl_user","email":"curl@ticketdaata.com","password":"curl123","role":"USER"}'
+
+# Login User:
+# curl -X POST http://localhost:9003/auth/login \
+#   -H "Content-Type: application/json" \
+#   -d '{"username":"curl_user","password":"curl123"}'
+
+# Logout:
+# curl -X POST http://localhost:9003/auth/logout \
+#   -H "Content-Type: application/json"
+
+###

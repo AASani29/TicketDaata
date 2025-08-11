@@ -1,0 +1,11 @@
+com\ticketdaata\authservice\AuthServiceApplication.class
+com\ticketdaata\authservice\dto\RegisterRequest.class
+com\ticketdaata\authservice\config\MongoConfig.class
+com\ticketdaata\authservice\util\JwtUtil.class
+com\ticketdaata\authservice\entity\User.class
+com\ticketdaata\authservice\dto\AuthResponse.class
+com\ticketdaata\authservice\config\SecurityConfig.class
+com\ticketdaata\authservice\dto\LoginRequest.class
+com\ticketdaata\authservice\repository\UserRepository.class
+com\ticketdaata\authservice\service\AuthService.class
+com\ticketdaata\authservice\controller\AuthController.class

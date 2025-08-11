@@ -1,0 +1,24 @@
+server:
+  port: 9001
+
+spring:
+  application:
+    name: TICKETDAATA-AUTH-SERVICE
+  data:
+    mongodb:
+      uri: mongodb+srv://ahmedalfey:sani9999@cluster0.iq0fhrp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      database: ticketdaata_auth
+
+# JWT Configuration
+jwt:
+  secret: TicketDaataSecretKeyForJWTTokenGenerationAndValidation2024
+  expiration: 86400000 # 24 hours in milliseconds
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    hostname: localhost
