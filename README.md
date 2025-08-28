@@ -23,7 +23,32 @@ This project implements a microservice architecture for TicketDaata with the fol
 - **Database**: MongoDB Atlas
 - **URL**: http://localhost:9001
 
+### 4. Orders Service (Port: 9002)
+
+- **Location**: `OrdersService/`
+- **Purpose**: Order management with lifecycle states, temporary reservations, and TTL-based expiration
+- **Database**: MongoDB Atlas
+- **URL**: http://localhost:9002
+- **Features**:
+  - Order creation and management
+  - Automatic order expiration (15 minutes TTL)
+  - Order lifecycle states (PENDING, COMPLETED, CANCELLED, EXPIRED)
+  - Duplicate order prevention
+  - Payment integration support
+
 ## Getting Started
+
+### Quick Start (All Services)
+
+Run all services at once using the batch script:
+
+```bash
+.\start-services.bat
+```
+
+This will start all services in the correct order with appropriate delays.
+
+### Manual Start (Individual Services)
 
 ### 1. Start Service Registry
 
@@ -39,7 +64,14 @@ cd AuthService
 ./mvnw spring-boot:run
 ```
 
-### 3. Start API Gateway
+### 3. Start Orders Service
+
+```bash
+cd OrdersService
+./mvnw spring-boot:run
+```
+
+### 4. Start API Gateway
 
 ```bash
 cd APIGateway
@@ -55,6 +87,17 @@ cd APIGateway
 - **POST** `/auth/logout` - User logout
 - **POST** `/auth/validate` - Validate JWT token
 - **GET** `/auth/username` - Extract username from token
+
+### Orders Endpoints (via API Gateway)
+
+- **POST** `/orders` - Create new order
+- **GET** `/orders/{orderId}` - Get order by ID
+- **PUT** `/orders/{orderId}` - Update order
+- **POST** `/orders/{orderId}/complete` - Complete order
+- **POST** `/orders/{orderId}/cancel` - Cancel order
+- **GET** `/orders/user/{userId}/pending/count` - Get pending orders count
+- **GET** `/orders/payment/{paymentId}` - Get order by payment ID
+- **GET** `/orders/health` - Service health check
 
 ### Sample Requests
 
@@ -84,11 +127,30 @@ Content-Type: application/json
 }
 ```
 
+#### Create Order
+
+```json
+POST http://localhost:9003/orders
+Content-Type: application/json
+Authorization: Bearer <jwt-token>
+
+{
+    "userId": "user123",
+    "ticketId": "ticket456",
+    "ticketTitle": "Concert Ticket",
+    "eventName": "Rock Concert 2024",
+    "quantity": 2,
+    "unitPrice": 50.00
+}
+```
+
 ## Future Services to Implement
 
 1. **User Service** - User profile management
 2. **Ticket Service** - Ticket booking and management
 3. **Event Service** - Event creation and management
+4. **Payment Service** - Payment processing integration
+5. **Notification Service** - Email and SMS notifications
 
 ## Architecture
 
