@@ -1,0 +1,168 @@
+###
+# TicketDaata Orders Service API Testing
+# Orders Service with TTL (15 minutes) and Order Lifecycle Management
+###
+
+### Variables
+@baseUrl = http://localhost:9003
+@ordersUrl = http://localhost:9002
+@authUrl = http://localhost:9001
+
+###
+# 1. SERVICE HEALTH CHECK
+# Check if Orders Service is running
+GET {{ordersUrl}}/orders/health
+Accept: application/json
+
+### Check via API Gateway
+GET {{baseUrl}}/api/orders/health
+Accept: application/json
+
+###
+# 2. CREATE ORDER (Temporary Reservation)
+# Create a new order with 15-minute TTL
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "ticketId": "ticket456",
+  "ticketTitle": "Concert Ticket - Front Row",
+  "eventName": "Rock Concert 2024",
+  "eventDate": "2024-12-31",
+  "seatInfo": "Section A, Row 1, Seat 5",
+  "price": 150.00,
+  "quantity": 2,
+  "sellerId": "seller789",
+  "sellerUsername": "john_seller"
+}
+
+### Create another order for testing
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "userId": "user456",
+  "ticketId": "ticket789",
+  "ticketTitle": "Sports Event Ticket",
+  "eventName": "Football Championship",
+  "eventDate": "2024-11-15",
+  "seatInfo": "Section B, Row 5, Seat 10",
+  "price": 75.50,
+  "quantity": 1,
+  "sellerId": "seller123",
+  "sellerUsername": "jane_seller"
+}
+
+###
+# 3. GET ORDER BY ID
+# Replace {orderId} with actual order ID from create response
+GET {{baseUrl}}/api/orders/67890abcdef123456789
+Accept: application/json
+
+###
+# 4. GET USER ORDERS
+# Get all orders for a specific user
+GET {{baseUrl}}/api/orders/user/user123
+Accept: application/json
+
+###
+# 5. GET SELLER ORDERS
+# Get all orders for a specific seller
+GET {{baseUrl}}/api/orders/seller/seller789
+Accept: application/json
+
+###
+# 6. UPDATE ORDER STATUS
+# Update order status (replace {orderId} with actual ID)
+PUT {{baseUrl}}/api/orders/67890abcdef123456789
+Content-Type: application/json
+
+{
+  "status": "COMPLETED",
+  "paymentId": "payment_123456789"
+}
+
+###
+# 7. COMPLETE ORDER
+# Mark order as completed with payment ID
+POST {{baseUrl}}/api/orders/67890abcdef123456789/complete
+Content-Type: application/json
+
+{
+  "paymentId": "stripe_payment_123456"
+}
+
+###
+# 8. CANCEL ORDER
+# Cancel an order with reason
+POST {{baseUrl}}/api/orders/67890abcdef123456789/cancel
+Content-Type: application/json
+
+{
+  "reason": "Customer requested cancellation"
+}
+
+###
+# 9. GET PENDING ORDERS COUNT FOR TICKET
+# Check how many pending orders exist for a ticket
+GET {{baseUrl}}/api/orders/ticket/ticket456/pending-count
+Accept: application/json
+
+###
+# 10. GET ORDER BY PAYMENT ID
+# Find order using payment ID
+GET {{baseUrl}}/api/orders/payment/stripe_payment_123456
+Accept: application/json
+
+###
+# 11. ERROR TESTING
+# Try to create duplicate pending order (should fail)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "ticketId": "ticket456",
+  "ticketTitle": "Concert Ticket - Front Row",
+  "eventName": "Rock Concert 2024",
+  "eventDate": "2024-12-31",
+  "seatInfo": "Section A, Row 1, Seat 5",
+  "price": 150.00,
+  "quantity": 2,
+  "sellerId": "seller789",
+  "sellerUsername": "john_seller"
+}
+
+### Try invalid status transition
+PUT {{baseUrl}}/api/orders/67890abcdef123456789
+Content-Type: application/json
+
+{
+  "status": "PENDING"
+}
+
+###
+# 12. DIRECT SERVICE TESTING (Bypassing API Gateway)
+# Test Orders Service directly
+
+### Direct order creation
+POST {{ordersUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": "direct_user",
+  "ticketId": "direct_ticket",
+  "ticketTitle": "Direct Test Ticket",
+  "eventName": "Direct Test Event",
+  "eventDate": "2024-10-01",
+  "seatInfo": "Test Section",
+  "price": 50.00,
+  "quantity": 1,
+  "sellerId": "direct_seller",
+  "sellerUsername": "direct_seller_user"
+}
+
+### Direct health check
+GET {{ordersUrl}}/orders/health
+Accept: application/json
