@@ -25,8 +25,8 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "username": "john_doe",
-  "email": "john@ticketdaata.com",
+  "username": "user1",
+  "email": "user1@ticketdaata.com",
   "password": "password123",
   "role": "USER"
 }
@@ -36,8 +36,8 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "username": "admin_user",
-  "email": "admin@ticketdaata.com",
+  "username": "admin_user1",
+  "email": "admin1@ticketdaata.com",
   "password": "admin123",
   "role": "ADMIN"
 }
@@ -47,8 +47,8 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "username": "jane_smith",
-  "email": "jane@ticketdaata.com",
+  "username": "alif",
+  "email": "alif@ticketdaata.com",
   "password": "jane123",
   "role": "USER"
 }
@@ -60,7 +60,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "john_doe",
+  "username": "user2",
   "password": "password123"
 }
 

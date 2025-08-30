@@ -10,7 +10,7 @@
 
 ###
 # 1. SERVICE HEALTH CHECK
-# Check if Orders Service is running
+# Check if Orders Service is running (Direct)
 GET {{ordersUrl}}/orders/health
 Accept: application/json
 
@@ -18,15 +18,19 @@ Accept: application/json
 GET {{baseUrl}}/api/orders/health
 Accept: application/json
 
+### Check Ticket Service via API Gateway
+GET {{baseUrl}}/api/tickets/health
+Accept: application/json
+
 ###
 # 2. CREATE ORDER (Temporary Reservation)
-# Create a new order with 15-minute TTL
+# Create a new order with 15-minute TTL via API Gateway
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
 
 {
-  "userId": "user123",
-  "ticketId": "ticket456",
+  "userId": "68b3585d9b9d637b9c12ac3d",
+  "ticketId": "68b359e6a88e1ac572c5dee8",
   "ticketTitle": "Concert Ticket - Front Row",
   "eventName": "Rock Concert 2024",
   "eventDate": "2024-12-31",
@@ -37,7 +41,7 @@ Content-Type: application/json
   "sellerUsername": "john_seller"
 }
 
-### Create another order for testing
+### Create another order for testing via API Gateway
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
 
@@ -52,6 +56,23 @@ Content-Type: application/json
   "quantity": 1,
   "sellerId": "seller123",
   "sellerUsername": "jane_seller"
+}
+
+### Create order directly to Orders Service (for testing direct access)
+POST {{ordersUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": "direct_user",
+  "ticketId": "direct_ticket",
+  "ticketTitle": "Direct Service Test",
+  "eventName": "Direct Test Event",
+  "eventDate": "2024-12-25",
+  "seatInfo": "Section C, Row 3, Seat 7",
+  "price": 100.00,
+  "quantity": 1,
+  "sellerId": "direct_seller",
+  "sellerUsername": "direct_seller_name"
 }
 
 ###

@@ -3,23 +3,20 @@ server:
 
 spring:
   application:
-    name: ticketservice
-  datasource:
-    url: jdbc:h2:mem:ticketdb
-    username: sa
-    password: 
-    driver-class-name: org.h2.Driver
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  jpa:
-    hibernate:
-      ddl-auto: update
-    open-in-view: false
-    properties:
-      hibernate:
-        format_sql: true
+    name: TICKETDAATA-TICKET-SERVICE
+  data:
+    mongodb:
+      uri: mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority
+      database: ticketdaata_tickets
+      auto-index-creation: true
+      host: hackathon.rflqj.mongodb.net
+      port: 27017
+      username: ahmedalfey
+      password: sani9999
+      authentication-database: admin
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -29,10 +26,22 @@ management:
     web:
       exposure:
         include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
 
 eureka:
   client:
-    serviceUrl:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
       defaultZone: http://localhost:8761/eureka/
   instance:
-    preferIpAddress: true
+    hostname: localhost
+
+logging:
+  level:
+    com.ticketdaata.ticketservice: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    com.mongodb: DEBUG
+    org.springframework.boot.autoconfigure.mongo: DEBUG

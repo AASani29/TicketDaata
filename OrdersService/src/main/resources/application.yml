@@ -6,8 +6,17 @@ spring:
     name: TICKETDAATA-ORDERS-SERVICE
   data:
     mongodb:
-      uri: mongodb+srv://ahmedalfey:sani9999@cluster0.iq0fhrp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      uri: mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority
       database: ticketdaata_orders
+      auto-index-creation: true
+      host: hackathon.rflqj.mongodb.net
+      port: 27017
+      username: ahmedalfey
+      password: sani9999
+      authentication-database: admin
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
 
 # Order Configuration
 orders:
@@ -24,6 +33,17 @@ eureka:
   instance:
     hostname: localhost
 
+feign:
+  client:
+    config:
+      TICKETDAATA-TICKET-SERVICE:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+
 logging:
   level:
     com.ticketdaata.ordersservice: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    com.mongodb: DEBUG
+    org.springframework.boot.autoconfigure.mongo: DEBUG

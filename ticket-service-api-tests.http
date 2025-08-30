@@ -1,0 +1,467 @@
+###
+# TicketDaata Ticket Service API Testing
+# Complete REST client tests for all Ticket Service endpoints
+###
+
+### Variables
+@baseUrl = http://localhost:8082
+@gatewayUrl = http://localhost:9003
+@ticketId = 1
+@version = 1
+
+###
+# 1. SERVICE HEALTH CHECK
+###
+
+### Check Ticket Service Health (Direct)
+GET {{baseUrl}}/tickets/health
+Accept: application/json
+
+### Check Ticket Service Health (Through API Gateway)
+GET {{gatewayUrl}}/api/tickets/health
+Accept: application/json
+
+###
+# 2. CREATE TICKETS
+###
+
+### Create Concert Ticket
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Rock Concert 2024",
+  "category": "Concert",
+  "location": "Madison Square Garden",
+  "eventDate": "2024-12-31T20:00:00",
+  "seatInfo": "Section A, Row 1, Seat 5",
+  "price": 150.00,
+  "sellerId": 123
+}
+
+### Create Sports Ticket
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "NBA Finals Game 7",
+  "category": "Sports",
+  "category": "Basketball",
+  "location": "Staples Center",
+  "eventDate": "2024-06-15T19:30:00",
+  "seatInfo": "Section 100, Row 10, Seat 15",
+  "price": 250.00,
+  "sellerId": 456
+}
+
+### Create Theater Ticket
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Hamilton Musical",
+  "category": "Theater",
+  "location": "Richard Rodgers Theatre",
+  "eventDate": "2024-11-20T19:00:00",
+  "seatInfo": "Orchestra, Row F, Seat 8",
+  "price": 300.00,
+  "sellerId": 789
+}
+
+### Create Comedy Show Ticket
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Stand-Up Comedy Night",
+  "category": "Comedy",
+  "location": "Comedy Cellar",
+  "eventDate": "2024-10-15T21:00:00",
+  "seatInfo": "General Admission",
+  "price": 45.00,
+  "sellerId": 101
+}
+
+### Create Festival Ticket
+POST {{gatewayUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Sani Music Festival",
+  "category": "Festival",
+  "location": "Empire Polo Club",
+  "eventDate": "2024-04-12T12:00:00",
+  "seatInfo": "Weekend 1, General Admission",
+  "price": 450.00,
+  "sellerId": 203
+}
+
+###
+# 3. GET TICKETS
+###
+
+### Get All Available Tickets
+GET {{baseUrl}}/tickets
+Accept: application/json
+
+### Get Specific Ticket by ID
+GET {{baseUrl}}/tickets/{{ticketId}}
+Accept: application/json
+
+### Get All Available Tickets (Through API Gateway)
+GET {{gatewayUrl}}/api/tickets
+Accept: application/json
+
+### Get Specific Ticket by ID (Through API Gateway)
+GET {{gatewayUrl}}/api/tickets/{{ticketId}}
+Accept: application/json
+
+###
+# 4. SEARCH TICKETS
+###
+
+### Search Tickets by Event Name
+GET {{baseUrl}}/tickets/search?query=Concert
+Accept: application/json
+
+### Search Tickets by Event Name (Through API Gateway)
+GET {{gatewayUrl}}/api/tickets/search?query=Concert
+Accept: application/json
+
+### Search Tickets by Category
+GET {{baseUrl}}/tickets/search?query=Sports
+Accept: application/json
+
+### Search Tickets by Location
+GET {{baseUrl}}/tickets/search?query=Madison
+Accept: application/json
+
+###
+# 5. TICKET RESERVATION MANAGEMENT
+###
+
+### Reserve a Ticket
+POST {{baseUrl}}/tickets/{{ticketId}}/reserve?version={{version}}
+Content-Type: application/json
+
+### Reserve a Ticket (Through API Gateway)
+POST {{gatewayUrl}}/api/tickets/{{ticketId}}/reserve?version={{version}}
+Content-Type: application/json
+
+### Release a Reserved Ticket
+POST {{baseUrl}}/tickets/{{ticketId}}/release
+Content-Type: application/json
+
+### Release a Reserved Ticket (Through API Gateway)
+POST {{gatewayUrl}}/api/tickets/{{ticketId}}/release
+Content-Type: application/json
+
+### Mark Ticket as Sold
+POST {{baseUrl}}/tickets/{{ticketId}}/sold
+Content-Type: application/json
+
+### Mark Ticket as Sold (Through API Gateway)
+POST {{gatewayUrl}}/api/tickets/{{ticketId}}/sold
+Content-Type: application/json
+
+###
+# 6. UPDATE TICKETS
+###
+
+### Update Ticket Location
+PUT {{baseUrl}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "location": "Updated Arena Location"
+}
+
+### Update Ticket Seat Info
+PUT {{baseUrl}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "seatInfo": "Section B, Row 2, Seat 10"
+}
+
+### Update Ticket Price
+PUT {{baseUrl}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "price": 175.00
+}
+
+### Update Multiple Fields
+PUT {{baseUrl}}/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "location": "New Stadium",
+  "seatInfo": "VIP Section, Row 1, Seat 1",
+  "price": 500.00
+}
+
+### Update Ticket (Through API Gateway)
+PUT {{gatewayUrl}}/api/tickets/{{ticketId}}
+Content-Type: application/json
+
+{
+  "location": "Gateway Updated Location",
+  "price": 200.00
+}
+
+###
+# 7. ADVANCED QUERIES
+###
+
+### Get Tickets Happening Between Dates
+GET {{baseUrl}}/tickets/happening-between?from=2024-10-01T00:00:00&to=2024-12-31T23:59:59
+Accept: application/json
+
+### Get Tickets Happening Between Dates (Through API Gateway)
+GET {{gatewayUrl}}/api/tickets/happening-between?from=2024-10-01T00:00:00&to=2024-12-31T23:59:59
+Accept: application/json
+
+### Get Tickets for Specific Date Range
+GET {{baseUrl}}/tickets/happening-between?from=2024-12-01T00:00:00&to=2024-12-31T23:59:59
+Accept: application/json
+
+###
+# 8. DELETE TICKETS
+###
+
+### Delete a Ticket
+DELETE {{baseUrl}}/tickets/{{ticketId}}
+
+### Delete a Ticket (Through API Gateway)
+DELETE {{gatewayUrl}}/api/tickets/{{ticketId}}
+
+###
+# 9. ERROR HANDLING TESTS
+###
+
+### Test Invalid Ticket ID (Not Found)
+GET {{baseUrl}}/tickets/99999
+Accept: application/json
+
+### Test Invalid Ticket ID (Through API Gateway)
+GET {{gatewayUrl}}/api/tickets/99999
+Accept: application/json
+
+### Test Create Ticket with Missing Required Fields
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Invalid Ticket"
+}
+
+### Test Create Ticket with Invalid Price
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Invalid Price Ticket",
+  "category": "Test",
+  "location": "Test Location",
+  "eventDate": "2024-12-31T20:00:00",
+  "seatInfo": "Test Seat",
+  "price": -50.00,
+  "sellerId": 123
+}
+
+### Test Create Ticket with Past Date
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Past Event Ticket",
+  "category": "Test",
+  "location": "Test Location",
+  "eventDate": "2020-01-01T20:00:00",
+  "seatInfo": "Test Seat",
+  "price": 100.00,
+  "sellerId": 123
+}
+
+### Test Reserve Non-existent Ticket
+POST {{baseUrl}}/tickets/99999/reserve?version=1
+Content-Type: application/json
+
+### Test Update Non-existent Ticket
+PUT {{baseUrl}}/tickets/99999
+Content-Type: application/json
+
+{
+  "price": 200.00
+}
+
+###
+# 10. BULK OPERATIONS TESTING
+###
+
+### Create Multiple Tickets for Same Event
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Bulk Event Test",
+  "category": "Test",
+  "location": "Test Arena",
+  "eventDate": "2024-12-25T19:00:00",
+  "seatInfo": "Section A, Row 1, Seat 1",
+  "price": 100.00,
+  "sellerId": 123
+}
+
+### Create Second Ticket for Same Event
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Bulk Event Test",
+  "category": "Test",
+  "location": "Test Arena",
+  "eventDate": "2024-12-25T19:00:00",
+  "seatInfo": "Section A, Row 1, Seat 2",
+  "price": 100.00,
+  "sellerId": 123
+}
+
+### Create Third Ticket for Same Event
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Bulk Event Test",
+  "category": "Test",
+  "location": "Test Arena",
+  "eventDate": "2024-12-25T19:00:00",
+  "seatInfo": "Section A, Row 1, Seat 3",
+  "price": 100.00,
+  "sellerId": 123
+}
+
+### Search for Bulk Event Tickets
+GET {{baseUrl}}/tickets/search?query=Bulk Event Test
+Accept: application/json
+
+###
+# 11. PERFORMANCE TESTING
+###
+
+### Test Multiple Concurrent Requests
+# Note: Run this multiple times quickly to test performance
+GET {{baseUrl}}/tickets
+Accept: application/json
+
+### Test Search Performance
+GET {{baseUrl}}/tickets/search?query=Test
+Accept: application/json
+
+###
+# 12. INTEGRATION TESTING
+###
+
+### Test Complete Ticket Lifecycle
+# 1. Create Ticket
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Lifecycle Test Event",
+  "category": "Test",
+  "location": "Test Location",
+  "eventDate": "2024-12-30T20:00:00",
+  "seatInfo": "Test Seat",
+  "price": 150.00,
+  "sellerId": 123
+}
+
+# 2. Get Created Ticket (replace {id} with actual ID from response)
+# GET {{baseUrl}}/tickets/{id}
+
+# 3. Update Ticket (replace {id} with actual ID)
+# PUT {{baseUrl}}/tickets/{id}
+# Content-Type: application/json
+# {
+#   "price": 200.00
+# }
+
+# 4. Reserve Ticket (replace {id} and {version} with actual values)
+# POST {{baseUrl}}/tickets/{id}/reserve?version={version}
+
+# 5. Mark as Sold (replace {id} with actual ID)
+# POST {{baseUrl}}/tickets/{id}/sold
+
+# 6. Delete Ticket (replace {id} with actual ID)
+# DELETE {{baseUrl}}/tickets/{id}
+
+###
+# 13. API GATEWAY INTEGRATION TESTS
+###
+
+### Test All Endpoints Through Gateway
+GET {{gatewayUrl}}/api/tickets
+Accept: application/json
+
+GET {{gatewayUrl}}/api/tickets/health
+Accept: application/json
+
+GET {{gatewayUrl}}/api/tickets/search?query=Gateway
+Accept: application/json
+
+###
+# 14. STATUS CODE VERIFICATION
+###
+
+### Verify 201 Created for Ticket Creation
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Status Test Event",
+  "category": "Test",
+  "location": "Test Location",
+  "eventDate": "2024-12-28T20:00:00",
+  "seatInfo": "Test Seat",
+  "price": 125.00,
+  "sellerId": 123
+}
+
+### Verify 204 No Content for Ticket Deletion
+DELETE {{baseUrl}}/tickets/{{ticketId}}
+
+### Verify 404 Not Found for Non-existent Ticket
+GET {{baseUrl}}/tickets/99999
+Accept: application/json
+
+### Verify 400 Bad Request for Invalid Data
+POST {{baseUrl}}/tickets
+Content-Type: application/json
+
+{
+  "invalid": "data"
+}
+
+###
+# 15. FINAL VERIFICATION
+###
+
+### Final Check - Get All Available Tickets
+GET {{baseUrl}}/tickets
+Accept: application/json
+
+### Final Check - Service Health
+GET {{baseUrl}}/tickets/health
+Accept: application/json
+
+###
+# USAGE INSTRUCTIONS:
+# 1. Replace {{ticketId}} with actual ticket ID from create responses
+# 2. Replace {{version}} with actual version number from ticket responses
+# 3. Run tests in sequence for lifecycle testing
+# 4. Check responses for proper status codes and data
+# 5. Verify data appears in MongoDB Atlas dashboard
+### 

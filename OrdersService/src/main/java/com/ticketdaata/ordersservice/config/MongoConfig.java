@@ -1,4 +1,4 @@
-package com.ticketdaata.authservice.config;
+package com.ticketdaata.ordersservice.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

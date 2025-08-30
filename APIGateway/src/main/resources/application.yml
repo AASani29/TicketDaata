@@ -6,29 +6,67 @@ spring:
     name: TICKETDAATA-API-GATEWAY
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
       routes:
         - id: TICKETDAATA-AUTH-SERVICE
           uri: lb://TICKETDAATA-AUTH-SERVICE
           predicates:
             - Path=/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+                fallbackUri: forward:/fallback/auth
         - id: TICKETDAATA-ORDERS-SERVICE
           uri: lb://TICKETDAATA-ORDERS-SERVICE
           predicates:
             - Path=/api/orders/**
           filters:
             - RewritePath=/api/orders/(?<segment>.*), /orders/${segment}
-        - id: USER-SERVICE
-          uri: lb://TICKETDAATA-USER-SERVICE
-          predicates:
-            - Path=/api/users/**
-        - id: TICKET-SERVICE
+            - name: CircuitBreaker
+              args:
+                name: ordersCircuitBreaker
+                fallbackUri: forward:/fallback/orders
+        - id: TICKETDAATA-TICKET-SERVICE
           uri: lb://TICKETDAATA-TICKET-SERVICE
           predicates:
             - Path=/api/tickets/**
+          filters:
+            - RewritePath=/api/tickets/(?<segment>.*), /tickets/${segment}
+            - name: CircuitBreaker
+              args:
+                name: ticketCircuitBreaker
+                fallbackUri: forward:/fallback/tickets
         - id: EVENT-SERVICE
           uri: lb://TICKETDAATA-EVENT-SERVICE
           predicates:
             - Path=/api/events/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: eventCircuitBreaker
+                fallbackUri: forward:/fallback/events
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+            methods: GET,POST,PUT,DELETE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
 
 eureka:
   client:
@@ -38,3 +76,8 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     hostname: localhost
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.netflix.discovery: DEBUG

@@ -1,13 +1,22 @@
 server:
-  port: 9001
+  port: 9000
 
 spring:
   application:
     name: TICKETDAATA-AUTH-SERVICE
   data:
     mongodb:
-      uri: mongodb+srv://ahmedalfey:sani9999@cluster0.iq0fhrp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      uri: mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority
       database: ticketdaata_auth
+      auto-index-creation: true
+      host: hackathon.rflqj.mongodb.net
+      port: 27017
+      username: ahmedalfey
+      password: sani9999
+      authentication-database: admin
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
 
 # JWT Configuration
 jwt:
@@ -22,3 +31,10 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
   instance:
     hostname: localhost
+
+logging:
+  level:
+    com.ticketdaata.authservice: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    com.mongodb: DEBUG
+    org.springframework.boot.autoconfigure.mongo: DEBUG

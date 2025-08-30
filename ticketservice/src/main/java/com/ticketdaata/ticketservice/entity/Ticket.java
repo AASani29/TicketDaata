@@ -1,44 +1,43 @@
 package com.ticketdaata.ticketservice.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tickets")
-@Getter @Setter
+@Document(collection = "tickets")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Ticket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
+    @Indexed
     private String eventName;
 
-    @Column(nullable = false)
+    @Indexed
     private String category;
 
-    @Column(nullable = false)
     private String location;
 
-    @Column(nullable = false)
+    @Indexed
     private LocalDateTime eventDate;
 
     private String seatInfo;
 
-    @Column(nullable = false)
     private Double price;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Indexed
     private TicketStatus status;
 
-    @Column(nullable = false)
+    @Indexed
     private Long sellerId;
 
     /** Optimistic locking to avoid double-sell */

@@ -1,23 +1,23 @@
-package com.ticketdaata.ticketservice.dto;
+package com.ticketdaata.ordersservice.dto;
 
-import com.ticketdaata.ticketservice.entity.TicketStatus;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class TicketResponse {
-    private String id;
+    private Long id;
     private String eventName;
     private String category;
     private String location;
     private LocalDateTime eventDate;
     private String seatInfo;
     private Double price;
-    private TicketStatus status;
+    private String status; // AVAILABLE, RESERVED, SOLD
     private Long sellerId;
     private Long version;
 }

@@ -6,114 +6,178 @@ import com.ticketdaata.ticketservice.dto.UpdateTicketRequest;
 import com.ticketdaata.ticketservice.entity.Ticket;
 import com.ticketdaata.ticketservice.entity.TicketStatus;
 import com.ticketdaata.ticketservice.repository.TicketRepository;
-import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TicketService {
 
-    private final TicketRepository repo;
-
-    private TicketResponse toDto(Ticket t) {
-        return TicketResponse.builder()
-                .id(t.getId())
-                .eventName(t.getEventName())
-                .category(t.getCategory())
-                .location(t.getLocation())
-                .eventDate(t.getEventDate())
-                .seatInfo(t.getSeatInfo())
-                .price(t.getPrice())
-                .status(t.getStatus())
-                .sellerId(t.getSellerId())
-                .version(t.getVersion())
-                .build();
-    }
+    private final TicketRepository ticketRepository;
 
     @Transactional
-    public TicketResponse create(CreateTicketRequest req) {
-        Ticket t = Ticket.builder()
-                .eventName(req.getEventName())
-                .category(req.getCategory())
-                .location(req.getLocation())
-                .eventDate(req.getEventDate())
-                .seatInfo(req.getSeatInfo())
-                .price(req.getPrice())
+    public TicketResponse create(CreateTicketRequest request) {
+        log.info("Creating ticket for event: {}", request.getEventName());
+
+        Ticket ticket = Ticket.builder()
+                .eventName(request.getEventName())
+                .category(request.getCategory())
+                .location(request.getLocation())
+                .eventDate(request.getEventDate())
+                .seatInfo(request.getSeatInfo())
+                .price(request.getPrice())
                 .status(TicketStatus.AVAILABLE)
-                .sellerId(req.getSellerId())
+                .sellerId(request.getSellerId())
                 .build();
-        return toDto(repo.save(t));
+
+        Ticket savedTicket = ticketRepository.save(ticket);
+        log.info("Ticket created successfully with ID: {}", savedTicket.getId());
+
+        return convertToResponse(savedTicket);
     }
 
-    @Transactional(readOnly = true)
     public List<TicketResponse> listAvailable() {
-        return repo.findByStatus(TicketStatus.AVAILABLE).stream().map(this::toDto).toList();
+        return ticketRepository.findByStatus(TicketStatus.AVAILABLE)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public TicketResponse get(Long id) {
-        Ticket t = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
-        return toDto(t);
-    }
-
-    @Transactional
-    public TicketResponse update(Long id, UpdateTicketRequest req) {
-        Ticket t = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
-        if (req.getLocation() != null) t.setLocation(req.getLocation());
-        if (req.getSeatInfo() != null) t.setSeatInfo(req.getSeatInfo());
-        if (req.getPrice() != null) t.setPrice(req.getPrice());
-        return toDto(repo.save(t));
+    public TicketResponse get(String id) {
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+        return convertToResponse(ticket);
     }
 
     @Transactional
-    public void delete(Long id) {
-        if (!repo.existsById(id)) throw new IllegalArgumentException("Ticket not found");
-        repo.deleteById(id);
-    }
+    public TicketResponse update(String id, UpdateTicketRequest request) {
+        log.info("Updating ticket: {}", id);
 
-    /** Reserve a ticket atomically (optimistic lock backed) */
-    @Transactional
-    public TicketResponse reserve(Long id, Long expectedVersion) {
-        Ticket t = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
-        if (!t.getVersion().equals(expectedVersion)) {
-            throw new OptimisticLockException("Ticket version mismatch");
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+
+        if (request.getLocation() != null) {
+            ticket.setLocation(request.getLocation());
         }
-        if (t.getStatus() != TicketStatus.AVAILABLE) {
-            throw new IllegalStateException("Ticket is not AVAILABLE");
+        if (request.getSeatInfo() != null) {
+            ticket.setSeatInfo(request.getSeatInfo());
         }
-        t.setStatus(TicketStatus.RESERVED);
-        return toDto(repo.save(t));
+        if (request.getPrice() != null) {
+            ticket.setPrice(request.getPrice());
+        }
+
+        Ticket savedTicket = ticketRepository.save(ticket);
+        log.info("Ticket updated successfully: {}", id);
+
+        return convertToResponse(savedTicket);
     }
 
     @Transactional
-    public TicketResponse release(Long id) {
-        Ticket t = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
-        if (t.getStatus() == TicketStatus.RESERVED) {
-            t.setStatus(TicketStatus.AVAILABLE);
+    public void delete(String id) {
+        log.info("Deleting ticket: {}", id);
+
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+
+        if (ticket.getStatus() == TicketStatus.RESERVED || ticket.getStatus() == TicketStatus.SOLD) {
+            throw new IllegalStateException("Cannot delete ticket that is reserved or sold");
         }
-        return toDto(repo.save(t));
+
+        ticketRepository.delete(ticket);
+        log.info("Ticket deleted successfully: {}", id);
     }
 
     @Transactional
-    public TicketResponse markSold(Long id) {
-        Ticket t = repo.findById(id).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
-        if (t.getStatus() == TicketStatus.SOLD) return toDto(t);
-        t.setStatus(TicketStatus.SOLD);
-        return toDto(repo.save(t));
+    public TicketResponse reserve(String id, Long version) {
+        log.info("Reserving ticket: {} with version: {}", id, version);
+
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+
+        if (ticket.getStatus() != TicketStatus.AVAILABLE) {
+            throw new IllegalStateException("Ticket is not available for reservation");
+        }
+
+        if (!ticket.getVersion().equals(version)) {
+            throw new IllegalStateException("Ticket version mismatch. Ticket may have been updated by another user.");
+        }
+
+        ticket.setStatus(TicketStatus.RESERVED);
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        log.info("Ticket reserved successfully: {}", id);
+        return convertToResponse(savedTicket);
     }
 
-    @Transactional(readOnly = true)
-    public List<TicketResponse> searchByEvent(String q) {
-        return repo.findByEventNameContainingIgnoreCase(q).stream().map(this::toDto).toList();
+    @Transactional
+    public TicketResponse release(String id) {
+        log.info("Releasing ticket: {}", id);
+
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+
+        if (ticket.getStatus() != TicketStatus.RESERVED) {
+            throw new IllegalStateException("Ticket is not reserved");
+        }
+
+        ticket.setStatus(TicketStatus.AVAILABLE);
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        log.info("Ticket released successfully: {}", id);
+        return convertToResponse(savedTicket);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
+    public TicketResponse markSold(String id) {
+        log.info("Marking ticket as sold: {}", id);
+
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+
+        if (ticket.getStatus() != TicketStatus.RESERVED) {
+            throw new IllegalStateException("Ticket must be reserved before marking as sold");
+        }
+
+        ticket.setStatus(TicketStatus.SOLD);
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        log.info("Ticket marked as sold successfully: {}", id);
+        return convertToResponse(savedTicket);
+    }
+
+    public List<TicketResponse> searchByEvent(String query) {
+        return ticketRepository.findByEventNameContainingIgnoreCase(query)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<TicketResponse> happeningBetween(LocalDateTime from, LocalDateTime to) {
-        return repo.findByEventDateBetween(from, to).stream().map(this::toDto).toList();
+        return ticketRepository.findByEventDateBetween(from, to)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    private TicketResponse convertToResponse(Ticket ticket) {
+        return TicketResponse.builder()
+                .id(ticket.getId())
+                .eventName(ticket.getEventName())
+                .category(ticket.getCategory())
+                .location(ticket.getLocation())
+                .eventDate(ticket.getEventDate())
+                .seatInfo(ticket.getSeatInfo())
+                .price(ticket.getPrice())
+                .status(ticket.getStatus())
+                .sellerId(ticket.getSellerId())
+                .version(ticket.getVersion())
+                .build();
     }
 }
