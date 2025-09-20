@@ -1,0 +1,89 @@
+###
+# TicketDaata Ownership Validation Tests
+# Testing the enforcement logic that prevents users from buying their own tickets
+###
+
+### Variables
+@baseUrl = http://localhost:9003
+@ordersUrl = http://localhost:9002
+@ticketsUrl = http://localhost:9004
+
+###
+# 1. SETUP - Create a ticket first (via Ticket Service)
+POST {{ticketsUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Test Concert 2024",
+  "category": "Music",
+  "location": "Test Arena",
+  "eventDate": "2024-12-31T20:00:00",
+  "seatInfo": "Section A, Row 1, Seat 1",
+  "price": 100.00,
+  "sellerId": 12345
+}
+
+###
+# 2. POSITIVE TEST - Different user tries to buy the ticket (should succeed)
+POST {{ordersUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": "67890",
+  "ticketId": "REPLACE_WITH_TICKET_ID_FROM_STEP_1",
+  "quantity": 1
+}
+
+###
+# 3. NEGATIVE TEST - Same user (seller) tries to buy their own ticket (should fail)
+POST {{ordersUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": "12345",
+  "ticketId": "REPLACE_WITH_TICKET_ID_FROM_STEP_1",
+  "quantity": 1
+}
+
+###
+# Expected Response for Step 3:
+# HTTP 400 Bad Request
+# {
+#   "error": "Purchase not allowed: You cannot buy tickets that you listed for sale."
+# }
+
+###
+# 4. EDGE CASE TEST - User ID as string vs number comparison
+POST {{ordersUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": "12345",
+  "ticketId": "REPLACE_WITH_TICKET_ID_FROM_STEP_1",
+  "quantity": 1
+}
+
+###
+# 5. VERIFICATION - Check that legitimate orders still work
+POST {{ticketsUrl}}/tickets
+Content-Type: application/json
+
+{
+  "eventName": "Another Test Event",
+  "category": "Sports",
+  "location": "Sports Stadium",
+  "eventDate": "2024-11-15T19:00:00",
+  "seatInfo": "Section B, Row 5, Seat 10",
+  "price": 75.00,
+  "sellerId": 99999
+}
+
+### Then try to buy with different user
+POST {{ordersUrl}}/orders
+Content-Type: application/json
+
+{
+  "userId": "11111",
+  "ticketId": "REPLACE_WITH_TICKET_ID_FROM_STEP_5",
+  "quantity": 1
+}

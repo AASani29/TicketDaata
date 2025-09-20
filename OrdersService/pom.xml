@@ -14,7 +14,7 @@
     <name>TicketDaata Orders Service</name>
     <description>Orders and Reservations service for TicketDaata</description>
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
     </properties>
     <dependencies>

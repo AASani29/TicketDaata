@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TicketResponse {
-    private Long id;
+    private String id;
     private String eventName;
     private String category;
     private String location;

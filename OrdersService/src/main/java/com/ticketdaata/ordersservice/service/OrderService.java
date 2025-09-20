@@ -30,7 +30,7 @@ public class OrderService {
         log.info("Creating order for ticket ID: {}", request.getTicketId());
 
         // 1. Get ticket details from Ticket Service
-        TicketResponse ticket = ticketServiceClient.getTicket(Long.valueOf(request.getTicketId()))
+        TicketResponse ticket = ticketServiceClient.getTicket(request.getTicketId())
                 .getBody();
 
         if (ticket == null) {
@@ -41,7 +41,20 @@ public class OrderService {
             throw new IllegalStateException("Ticket is not available for purchase");
         }
 
-        // 2. Reserve the ticket
+        // 2. Validate ownership - prevent users from buying their own tickets
+        String buyerUserId = request.getUserId();
+        String sellerUserId = ticket.getSellerId().toString();
+        
+        if (buyerUserId.equals(sellerUserId)) {
+            log.warn("Purchase attempt blocked: User {} tried to buy their own ticket {}", 
+                    buyerUserId, request.getTicketId());
+            throw new IllegalArgumentException("Purchase not allowed: You cannot buy tickets that you listed for sale.");
+        }
+        
+        log.info("Ownership validation passed: Buyer {} is different from seller {}", 
+                buyerUserId, sellerUserId);
+
+        // 3. Reserve the ticket
         try {
             ticketServiceClient.reserveTicket(ticket.getId(), ticket.getVersion());
         } catch (Exception e) {
@@ -49,7 +62,7 @@ public class OrderService {
             throw new IllegalStateException("Unable to reserve ticket. It may have been sold to another buyer.");
         }
 
-        // 3. Create the order using ticket details
+        // 4. Create the order using ticket details
         Order order = new Order();
         order.setUserId(request.getUserId());
         order.setTicketId(request.getTicketId());

@@ -5,19 +5,19 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "TICKETDAATA-TICKET-SERVICE")
+@FeignClient(name = "TICKETDAATA-TICKET-SERVICE", url = "http://localhost:8082")
 public interface TicketServiceClient {
 
     @GetMapping("/tickets/{id}")
-    ResponseEntity<TicketResponse> getTicket(@PathVariable("id") Long ticketId);
+    ResponseEntity<TicketResponse> getTicket(@PathVariable("id") String ticketId);
 
     @PostMapping("/tickets/{id}/reserve")
-    ResponseEntity<TicketResponse> reserveTicket(@PathVariable("id") Long ticketId,
+    ResponseEntity<TicketResponse> reserveTicket(@PathVariable("id") String ticketId,
             @RequestParam("version") Long version);
 
     @PostMapping("/tickets/{id}/release")
-    ResponseEntity<TicketResponse> releaseTicket(@PathVariable("id") Long ticketId);
+    ResponseEntity<TicketResponse> releaseTicket(@PathVariable("id") String ticketId);
 
     @PostMapping("/tickets/{id}/sold")
-    ResponseEntity<TicketResponse> markTicketSold(@PathVariable("id") Long ticketId);
+    ResponseEntity<TicketResponse> markTicketSold(@PathVariable("id") String ticketId);
 }
