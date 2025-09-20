@@ -26,16 +26,17 @@ Accept: application/json
 ###
 
 ### Create Concert Ticket
-POST {{baseUrl}}/tickets
+POST {{{{gatewayUrl}}}}/tickets
 Content-Type: application/json
 
 {
-  "eventName": "Rock Concert 2024",
+  "eventName": "Coke Studio Concert2 2025",
   "category": "Concert",
-  "location": "Madison Square Garden",
-  "eventDate": "2024-12-31T20:00:00",
+  "location": "Sher E Bangla Square Garden",
+  "eventDate": "2025-12-31T20:00:00",
   "seatInfo": "Section A, Row 1, Seat 5",
   "price": 150.00,
+  "userId": "68b358179b9d637b9c12ac3c",
   "sellerId": 123
 }
 
@@ -51,6 +52,7 @@ Content-Type: application/json
   "eventDate": "2024-06-15T19:30:00",
   "seatInfo": "Section 100, Row 10, Seat 15",
   "price": 250.00,
+  "userId": "user456",
   "sellerId": 456
 }
 
@@ -65,6 +67,7 @@ Content-Type: application/json
   "eventDate": "2024-11-20T19:00:00",
   "seatInfo": "Orchestra, Row F, Seat 8",
   "price": 300.00,
+  "userId": "user789",
   "sellerId": 789
 }
 

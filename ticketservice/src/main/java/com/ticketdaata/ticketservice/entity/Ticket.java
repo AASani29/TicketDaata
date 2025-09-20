@@ -38,6 +38,9 @@ public class Ticket {
     private TicketStatus status;
 
     @Indexed
+    private String userId; // Owner/Creator of the ticket
+
+    @Indexed
     private Long sellerId;
 
     /** Optimistic locking to avoid double-sell */

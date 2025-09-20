@@ -30,9 +30,9 @@ Content-Type: application/json
 
 {
   "userId": "68b3585d9b9d637b9c12ac3d",
-  "ticketId": "68b359e6a88e1ac572c5dee8",
+  "ticketId": "68ce7d764feb0698e5084f78",
   "ticketTitle": "Concert Ticket - Front Row",
-  "eventName": "Rock Concert 2024",
+  "eventName": "Coke Studio Concert3 2025",
   "eventDate": "2024-12-31",
   "seatInfo": "Section A, Row 1, Seat 5",
   "price": 150.00,
@@ -46,16 +46,16 @@ POST {{baseUrl}}/api/orders
 Content-Type: application/json
 
 {
-  "userId": "user456",
-  "ticketId": "ticket789",
-  "ticketTitle": "Sports Event Ticket",
-  "eventName": "Football Championship",
-  "eventDate": "2024-11-15",
-  "seatInfo": "Section B, Row 5, Seat 10",
-  "price": 75.50,
-  "quantity": 1,
-  "sellerId": "seller123",
-  "sellerUsername": "jane_seller"
+  "userId": "68b3585d9b9d637b9c12ac3d",
+  "ticketId": "68ce7d764feb0698e5084f78",
+  "ticketTitle": "Concert Ticket - Front Row",
+  "eventName": "Coke Studio Concert3 2025",
+  "eventDate": "2024-12-31",
+  "seatInfo": "Section A, Row 1, Seat 5",
+  "price": 150.00,
+  "quantity": 2,
+  "sellerId": "seller789",
+  "sellerUsername": "john_seller"
 }
 
 ### Create order directly to Orders Service (for testing direct access)

@@ -29,6 +29,9 @@ public class CreateTicketRequest {
     @Positive
     private Double price;
 
+    @NotBlank
+    private String userId; // Owner/Creator of the ticket
+
     @NotNull
     private Long sellerId; // from Auth service
 }

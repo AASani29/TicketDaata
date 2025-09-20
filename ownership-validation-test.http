@@ -14,12 +14,13 @@ POST {{ticketsUrl}}/tickets
 Content-Type: application/json
 
 {
-  "eventName": "Test Concert 2024",
+  "eventName": "Colplay Concert 2024",
   "category": "Music",
   "location": "Test Arena",
   "eventDate": "2024-12-31T20:00:00",
   "seatInfo": "Section A, Row 1, Seat 1",
   "price": 100.00,
+  "userId": "user12345",
   "sellerId": 12345
 }
 
@@ -29,19 +30,19 @@ POST {{ordersUrl}}/orders
 Content-Type: application/json
 
 {
-  "userId": "67890",
-  "ticketId": "REPLACE_WITH_TICKET_ID_FROM_STEP_1",
+  "userId": "68b3585d9b9d637b9c12ac3d",
+  "ticketId": "68ce5a5dbd1ef36b206a2efe",
   "quantity": 1
 }
 
 ###
-# 3. NEGATIVE TEST - Same user (seller) tries to buy their own ticket (should fail)
+# 3. NEGATIVE TEST - Same user (ticket owner) tries to buy their own ticket (should fail)
 POST {{ordersUrl}}/orders
 Content-Type: application/json
 
 {
-  "userId": "12345",
-  "ticketId": "REPLACE_WITH_TICKET_ID_FROM_STEP_1",
+  "userId": "68b3585d9b9d637b9c12ac3d",
+  "ticketId": "68ce76724feb0698e5084f74",
   "quantity": 1
 }
 

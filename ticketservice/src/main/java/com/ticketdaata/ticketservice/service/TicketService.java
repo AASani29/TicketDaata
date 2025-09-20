@@ -34,6 +34,7 @@ public class TicketService {
                 .seatInfo(request.getSeatInfo())
                 .price(request.getPrice())
                 .status(TicketStatus.AVAILABLE)
+                .userId(request.getUserId())
                 .sellerId(request.getSellerId())
                 .build();
 
@@ -176,6 +177,7 @@ public class TicketService {
                 .seatInfo(ticket.getSeatInfo())
                 .price(ticket.getPrice())
                 .status(ticket.getStatus())
+                .userId(ticket.getUserId())
                 .sellerId(ticket.getSellerId())
                 .version(ticket.getVersion())
                 .build();

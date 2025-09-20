@@ -23,9 +23,9 @@ spring:
         - id: TICKETDAATA-ORDERS-SERVICE
           uri: lb://TICKETDAATA-ORDERS-SERVICE
           predicates:
-            - Path=/api/orders/**
+            - Path=/api/orders,/api/orders/**
           filters:
-            - RewritePath=/api/orders/(?<segment>.*), /orders/${segment}
+            - RewritePath=/api/orders(?<segment>.*), /orders${segment}
             - name: CircuitBreaker
               args:
                 name: ordersCircuitBreaker
@@ -33,9 +33,9 @@ spring:
         - id: TICKETDAATA-TICKET-SERVICE
           uri: lb://TICKETDAATA-TICKET-SERVICE
           predicates:
-            - Path=/api/tickets/**
+            - Path=/api/tickets,/api/tickets/**
           filters:
-            - RewritePath=/api/tickets/(?<segment>.*), /tickets/${segment}
+            - RewritePath=/api/tickets(?<segment>.*), /tickets${segment}
             - name: CircuitBreaker
               args:
                 name: ticketCircuitBreaker

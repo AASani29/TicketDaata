@@ -43,16 +43,17 @@ public class OrderService {
 
         // 2. Validate ownership - prevent users from buying their own tickets
         String buyerUserId = request.getUserId();
-        String sellerUserId = ticket.getSellerId().toString();
-        
-        if (buyerUserId.equals(sellerUserId)) {
-            log.warn("Purchase attempt blocked: User {} tried to buy their own ticket {}", 
+        String ticketOwnerUserId = ticket.getUserId();
+
+        if (buyerUserId.equals(ticketOwnerUserId)) {
+            log.warn("Purchase attempt blocked: User {} tried to buy their own ticket {}",
                     buyerUserId, request.getTicketId());
-            throw new IllegalArgumentException("Purchase not allowed: You cannot buy tickets that you listed for sale.");
+            throw new IllegalArgumentException(
+                    "Purchase not allowed: You cannot buy tickets that you listed for sale.");
         }
-        
-        log.info("Ownership validation passed: Buyer {} is different from seller {}", 
-                buyerUserId, sellerUserId);
+
+        log.info("Ownership validation passed: Buyer {} is different from ticket owner {}",
+                buyerUserId, ticketOwnerUserId);
 
         // 3. Reserve the ticket
         try {
@@ -103,7 +104,7 @@ public class OrderService {
 
         // Mark ticket as sold in Ticket Service
         try {
-            ticketServiceClient.markTicketSold(Long.valueOf(order.getTicketId()));
+            ticketServiceClient.markTicketSold(order.getTicketId());
         } catch (Exception e) {
             log.error("Failed to mark ticket as sold: {}", e.getMessage());
             throw new IllegalStateException("Failed to complete ticket sale");
@@ -133,7 +134,7 @@ public class OrderService {
 
         // Release ticket reservation in Ticket Service
         try {
-            ticketServiceClient.releaseTicket(Long.valueOf(order.getTicketId()));
+            ticketServiceClient.releaseTicket(order.getTicketId());
         } catch (Exception e) {
             log.error("Failed to release ticket reservation: {}", e.getMessage());
             // Continue with cancellation even if ticket service call fails
@@ -218,7 +219,7 @@ public class OrderService {
 
         // Release ticket reservation
         try {
-            ticketServiceClient.releaseTicket(Long.valueOf(order.getTicketId()));
+            ticketServiceClient.releaseTicket(order.getTicketId());
         } catch (Exception e) {
             log.error("Failed to release ticket reservation for expired order: {}", e.getMessage());
         }

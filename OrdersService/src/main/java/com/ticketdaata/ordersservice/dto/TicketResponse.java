@@ -18,6 +18,7 @@ public class TicketResponse {
     private String seatInfo;
     private Double price;
     private String status; // AVAILABLE, RESERVED, SOLD
+    private String userId; // Owner/Creator of the ticket
     private Long sellerId;
     private Long version;
 }
