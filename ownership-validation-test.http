@@ -14,13 +14,13 @@ POST {{ticketsUrl}}/tickets
 Content-Type: application/json
 
 {
-  "eventName": "Colplay Concert 2024",
+  "eventName": "LP Concert 2024",
   "category": "Music",
   "location": "Test Arena",
   "eventDate": "2024-12-31T20:00:00",
   "seatInfo": "Section A, Row 1, Seat 1",
   "price": 100.00,
-  "userId": "user12345",
+  "userId": "68b3585d9b9d637b9c12ac3d",
   "sellerId": 12345
 }
 
