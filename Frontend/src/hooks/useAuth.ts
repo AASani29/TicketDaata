@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
-import type { User, LoginRequest, RegisterRequest } from '../types';
+import type { User, LoginRequest, RegisterRequest } from '../types/auth';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -22,7 +22,18 @@ export const useAuth = () => {
       setError(null);
       const authResponse = await authService.login(credentials);
       authService.storeAuthData(authResponse);
-      setUser(authResponse.user);
+      
+      // Create user object from backend response
+      if (authResponse.username) {
+        const user: User = {
+          id: authResponse.username,
+          username: authResponse.username,
+          email: '',
+          role: (authResponse as any).role || 'USER'
+        };
+        setUser(user);
+      }
+      
       return authResponse;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Login failed';
@@ -39,7 +50,18 @@ export const useAuth = () => {
       setError(null);
       const authResponse = await authService.register(userData);
       authService.storeAuthData(authResponse);
-      setUser(authResponse.user);
+      
+      // Create user object from backend response
+      if (authResponse.username) {
+        const user: User = {
+          id: authResponse.username,
+          username: authResponse.username,
+          email: userData.email, // Use email from registration data
+          role: (authResponse as any).role || 'USER'
+        };
+        setUser(user);
+      }
+      
       return authResponse;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Registration failed';

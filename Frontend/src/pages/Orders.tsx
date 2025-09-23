@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '../components/AuthProvider';
 import { orderService } from '../services/orderService';
-import type { Order } from '../types';
+import type { Order } from '../types/api';
 
 export const Orders: React.FC = () => {
   const [buyerOrders, setBuyerOrders] = useState<Order[]>([]);

@@ -1,13 +1,13 @@
 server:
-  port: 8082
+  port: ${TICKET_SERVICE_PORT:8082}
 
 spring:
   application:
     name: TICKETDAATA-TICKET-SERVICE
   data:
     mongodb:
-      uri: mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority
-      database: ticketdaata_tickets
+      uri: ${MONGODB_URI:mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority}
+      database: ${MONGODB_DATABASE:ticketdaata_tickets}
       auto-index-creation: true
       host: hackathon.rflqj.mongodb.net
       port: 27017
@@ -20,6 +20,10 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+
+# CORS Configuration
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
 
 management:
   endpoints:
@@ -35,7 +39,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
   instance:
     hostname: localhost
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../components/AuthProvider';
 import { ticketService } from '../services/ticketService';
-import type { TicketFormData } from '../types';
+import type { TicketFormData } from '../types/api';
 
 export const CreateTicket: React.FC = () => {
   const [formData, setFormData] = useState<TicketFormData>({

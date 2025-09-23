@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuthContext } from '../components/AuthProvider';
 import { ticketService } from '../services/ticketService';
 import { orderService } from '../services/orderService';
-import type { Ticket } from '../types';
+import type { Ticket } from '../types/api';
 
 export const Tickets: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
