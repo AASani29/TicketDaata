@@ -17,6 +17,26 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
+  # Messaging Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    connection-timeout: 10000
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+        acknowledge-mode: auto
+        prefetch: 10
+
+# Messaging Mode Configuration
+messaging:
+  mode: rabbitmq # Options: inmemory, rabbitmq
 
 # Order Configuration
 orders:

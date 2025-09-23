@@ -3,6 +3,7 @@ package com.ticketdaata.ordersservice.service;
 import com.ticketdaata.ordersservice.Client.TicketServiceClient;
 import com.ticketdaata.ordersservice.dto.*;
 import com.ticketdaata.ordersservice.entity.Order;
+import com.ticketdaata.ordersservice.messaging.publisher.OrderEventPublisher;
 import com.ticketdaata.ordersservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final TicketServiceClient ticketServiceClient;
+    private final OrderEventPublisher orderEventPublisher;
 
     private static final int ORDER_EXPIRATION_MINUTES = 15;
 
@@ -55,11 +57,16 @@ public class OrderService {
         log.info("Ownership validation passed: Buyer {} is different from ticket owner {}",
                 buyerUserId, ticketOwnerUserId);
 
-        // 3. Reserve the ticket
+        // 3. Reserve the ticket using messaging instead of direct HTTP call
         try {
-            ticketServiceClient.reserveTicket(ticket.getId(), ticket.getVersion());
+            orderEventPublisher.publishTicketReservationRequest(
+                    ticket.getId(), 
+                    null, // orderId will be set after creating the order
+                    request.getUserId(), 
+                    ticket.getVersion()
+            );
         } catch (Exception e) {
-            log.error("Failed to reserve ticket {}: {}", ticket.getId(), e.getMessage());
+            log.error("Failed to send ticket reservation request {}: {}", ticket.getId(), e.getMessage());
             throw new IllegalStateException("Unable to reserve ticket. It may have been sold to another buyer.");
         }
 
@@ -82,6 +89,32 @@ public class OrderService {
         order.setSellerUsername(""); // You'll get this from user service later
 
         Order savedOrder = orderRepository.save(order);
+        
+        // Now update the reservation request with the actual order ID
+        orderEventPublisher.publishTicketReservationRequest(
+                request.getTicketId(), 
+                savedOrder.getId(), 
+                request.getUserId(), 
+                ticket.getVersion()
+        );
+        
+        // Publish order created event
+        orderEventPublisher.publishOrderCreated(
+                savedOrder.getId(),
+                request.getTicketId(),
+                request.getUserId(),
+                savedOrder.getTotalAmount()
+        );
+        
+        // Schedule order expiration
+        LocalDateTime expirationTime = savedOrder.getCreatedAt().plusMinutes(ORDER_EXPIRATION_MINUTES);
+        orderEventPublisher.scheduleOrderExpiration(
+                savedOrder.getId(),
+                request.getTicketId(),
+                request.getUserId(),
+                expirationTime
+        );
+        
         log.info("Order created successfully: {}", savedOrder.getId());
 
         return OrderResponse.fromEntity(savedOrder);
@@ -102,13 +135,12 @@ public class OrderService {
             throw new IllegalStateException("Order has expired");
         }
 
-        // Mark ticket as sold in Ticket Service
-        try {
-            ticketServiceClient.markTicketSold(order.getTicketId());
-        } catch (Exception e) {
-            log.error("Failed to mark ticket as sold: {}", e.getMessage());
-            throw new IllegalStateException("Failed to complete ticket sale");
-        }
+        // Mark ticket as sold in Ticket Service using messaging
+        orderEventPublisher.publishTicketSoldRequest(
+                order.getTicketId(),
+                order.getId(),
+                order.getUserId()
+        );
 
         // Update order status
         order.setStatus(Order.OrderStatus.COMPLETED);
@@ -116,6 +148,15 @@ public class OrderService {
         order.setUpdatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
+        
+        // Publish order completed event
+        orderEventPublisher.publishOrderCompleted(
+                orderId,
+                order.getTicketId(),
+                order.getUserId(),
+                order.getTotalAmount()
+        );
+        
         log.info("Order completed successfully: {}", orderId);
 
         return OrderResponse.fromEntity(savedOrder);
@@ -132,13 +173,13 @@ public class OrderService {
             throw new IllegalStateException("Only pending orders can be cancelled");
         }
 
-        // Release ticket reservation in Ticket Service
-        try {
-            ticketServiceClient.releaseTicket(order.getTicketId());
-        } catch (Exception e) {
-            log.error("Failed to release ticket reservation: {}", e.getMessage());
-            // Continue with cancellation even if ticket service call fails
-        }
+        // Release ticket reservation in Ticket Service using messaging
+        orderEventPublisher.publishTicketReleaseRequest(
+                order.getTicketId(),
+                order.getId(),
+                order.getUserId(),
+                reason
+        );
 
         // Update order status
         order.setStatus(Order.OrderStatus.CANCELLED);
@@ -146,6 +187,15 @@ public class OrderService {
         order.setUpdatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
+        
+        // Publish order cancelled event
+        orderEventPublisher.publishOrderCancelled(
+                orderId,
+                order.getTicketId(),
+                order.getUserId(),
+                reason
+        );
+        
         log.info("Order cancelled successfully: {}", orderId);
 
         return OrderResponse.fromEntity(savedOrder);
@@ -217,17 +267,25 @@ public class OrderService {
             return;
         }
 
-        // Release ticket reservation
-        try {
-            ticketServiceClient.releaseTicket(order.getTicketId());
-        } catch (Exception e) {
-            log.error("Failed to release ticket reservation for expired order: {}", e.getMessage());
-        }
+        // Release ticket reservation using messaging
+        orderEventPublisher.publishTicketReleaseRequest(
+                order.getTicketId(),
+                order.getId(),
+                order.getUserId(),
+                "Order expired"
+        );
 
         // Update order status
         order.setStatus(Order.OrderStatus.EXPIRED);
         order.setUpdatedAt(LocalDateTime.now());
         orderRepository.save(order);
+        
+        // Publish order expired event
+        orderEventPublisher.publishOrderExpired(
+                orderId,
+                order.getTicketId(),
+                order.getUserId()
+        );
 
         log.info("Order expired successfully: {}", orderId);
     }

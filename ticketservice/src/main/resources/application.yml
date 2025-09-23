@@ -20,6 +20,26 @@ spring:
   jackson:
     serialization:
       write-dates-as-timestamps: false
+  # Messaging Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    connection-timeout: 10000
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000
+        acknowledge-mode: auto
+        prefetch: 10
+
+# Messaging Mode Configuration
+messaging:
+  mode: rabbitmq # Options: inmemory, rabbitmq
 
 # CORS Configuration
 cors:
