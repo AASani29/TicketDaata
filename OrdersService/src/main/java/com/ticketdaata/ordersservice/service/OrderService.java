@@ -3,7 +3,7 @@ package com.ticketdaata.ordersservice.service;
 import com.ticketdaata.ordersservice.Client.TicketServiceClient;
 import com.ticketdaata.ordersservice.dto.*;
 import com.ticketdaata.ordersservice.entity.Order;
-import com.ticketdaata.ordersservice.messaging.publisher.OrderEventPublisher;
+import com.ticketdaata.ordersservice.messaging.publisher.OrderEventPublisherInterface;
 import com.ticketdaata.ordersservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final TicketServiceClient ticketServiceClient;
-    private final OrderEventPublisher orderEventPublisher;
+    private final OrderEventPublisherInterface orderEventPublisher;
 
     private static final int ORDER_EXPIRATION_MINUTES = 15;
 

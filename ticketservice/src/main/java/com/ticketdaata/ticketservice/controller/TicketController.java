@@ -3,6 +3,7 @@ package com.ticketdaata.ticketservice.controller;
 import com.ticketdaata.ticketservice.dto.CreateTicketRequest;
 import com.ticketdaata.ticketservice.dto.TicketResponse;
 import com.ticketdaata.ticketservice.dto.UpdateTicketRequest;
+import com.ticketdaata.ticketservice.entity.TicketStatus;
 import com.ticketdaata.ticketservice.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,6 +31,16 @@ public class TicketController {
     @GetMapping
     public List<TicketResponse> getAvailableTickets() {
         return ticketService.listAvailable();
+    }
+
+    @GetMapping("/status/{status}")
+    public List<TicketResponse> getTicketsByStatus(@PathVariable String status) {
+        try {
+            TicketStatus ticketStatus = TicketStatus.valueOf(status.toUpperCase());
+            return ticketService.listByStatus(ticketStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid ticket status: " + status + ". Valid statuses are: AVAILABLE, RESERVED, SOLD");
+        }
     }
 
     @GetMapping("/{id}")

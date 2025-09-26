@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import com.ticketdaata.ordersservice.messaging.config.RabbitMQConfig;
@@ -17,7 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderEventPublisher {
+@ConditionalOnProperty(name = "messaging.mode", havingValue = "rabbitmq")
+public class OrderEventPublisher implements OrderEventPublisherInterface {
 
     private final RabbitTemplate rabbitTemplate;
 

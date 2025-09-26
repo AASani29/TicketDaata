@@ -78,7 +78,8 @@ export interface Order {
 
 export interface CreateOrderRequest {
   ticketId: string;
-  buyerId: string;
+  userId: string;
+  quantity: number;
 }
 
 export interface OrderResponse {

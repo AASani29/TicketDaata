@@ -6,11 +6,13 @@ import com.ticketdaata.ticketservice.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "messaging.mode", havingValue = "rabbitmq")
 public class TicketReservationListener {
 
     private final TicketService ticketService;

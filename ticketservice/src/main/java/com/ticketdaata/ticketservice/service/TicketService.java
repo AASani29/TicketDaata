@@ -5,7 +5,7 @@ import com.ticketdaata.ticketservice.dto.TicketResponse;
 import com.ticketdaata.ticketservice.dto.UpdateTicketRequest;
 import com.ticketdaata.ticketservice.entity.Ticket;
 import com.ticketdaata.ticketservice.entity.TicketStatus;
-import com.ticketdaata.ticketservice.messaging.publisher.TicketEventPublisher;
+import com.ticketdaata.ticketservice.messaging.publisher.TicketEventPublisherInterface;
 import com.ticketdaata.ticketservice.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
-    private final TicketEventPublisher ticketEventPublisher;
+    private final TicketEventPublisherInterface ticketEventPublisher;
 
     @Transactional
     public TicketResponse create(CreateTicketRequest request) {
@@ -48,6 +48,14 @@ public class TicketService {
 
     public List<TicketResponse> listAvailable() {
         return ticketRepository.findByStatus(TicketStatus.AVAILABLE)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<TicketResponse> listByStatus(TicketStatus status) {
+        log.info("Fetching tickets with status: {}", status);
+        return ticketRepository.findByStatus(status)
                 .stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());

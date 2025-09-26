@@ -19,8 +19,7 @@ const RegisterForm: React.FC = () => {
   const [formData, setFormData] = useState<RegisterFormData>({
     username: '',
     email: '',
-    password: '',
-    role: 'USER'
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -46,7 +45,7 @@ const RegisterForm: React.FC = () => {
       if (response.token) {
         apiService.setToken(response.token);
         setMessage(`Registration successful! Welcome, ${response.username}`);
-        setFormData({ username: '', email: '', password: '', role: 'USER' });
+        setFormData({ username: '', email: '', password: '' });
       } else {
         setError(response.message || 'Registration failed');
       }

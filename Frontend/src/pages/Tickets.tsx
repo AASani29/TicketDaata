@@ -37,7 +37,8 @@ export const Tickets: React.FC = () => {
     try {
       await orderService.createOrder({
         ticketId,
-        buyerId: user.id
+        userId: user.id,
+        quantity: 1
       });
       alert('Order created successfully! Check your orders page.');
       loadTickets(); // Refresh to show updated status

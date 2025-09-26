@@ -39,7 +39,7 @@ spring:
 
 # Messaging Mode Configuration
 messaging:
-  mode: rabbitmq # Options: inmemory, rabbitmq
+  mode: inmemory # Options: inmemory, rabbitmq
 
 # CORS Configuration
 cors:
