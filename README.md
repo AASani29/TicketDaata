@@ -1,5 +1,7 @@
 # TicketDaata Microservices Setup
 
+[![CI/CD](https://github.com/AASani29/TicketDaata/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/AASani29/TicketDaata/actions/workflows/ci-cd.yml)
+
 This project implements a microservice architecture for TicketDaata with the following services.
 
 ## Run it on Kubernetes
