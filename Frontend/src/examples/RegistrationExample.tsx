@@ -36,8 +36,8 @@ const RegistrationExample: React.FC = () => {
         password: '',
         role: 'USER'
       });
-    } catch (err: any) {
-      setError(err.message || 'Registration failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
       setLoading(false);
     }

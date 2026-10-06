@@ -1,19 +1,20 @@
 import React, { createContext, useContext } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import type { User, LoginRequest, RegisterRequest } from '../types/auth';
+import type { User, LoginRequest, RegisterRequest, AuthResponse } from '../types/auth';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: LoginRequest) => Promise<any>;
-  register: (userData: RegisterRequest) => Promise<any>;
+  login: (credentials: LoginRequest) => Promise<AuthResponse>;
+  register: (userData: RegisterRequest) => Promise<AuthResponse>;
   logout: () => void;
   isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components -- hook is colocated with its Provider/Context by design
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

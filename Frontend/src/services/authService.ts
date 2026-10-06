@@ -1,10 +1,11 @@
 import apiService from './api';
-import type { 
-  LoginRequest, 
-  RegisterRequest, 
-  AuthResponse, 
-  User 
+import type {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+  User
 } from '../types/auth';
+import type { ApiError } from '../types/api';
 
 export const authService = {
   // Login user
@@ -17,8 +18,8 @@ export const authService = {
       }
       
       return response;
-    } catch (error: any) {
-      throw new Error(error.message || 'Login failed');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Login failed');
     }
   },
 
@@ -33,11 +34,11 @@ export const authService = {
       }
       
       return response;
-    } catch (error: any) {
-      console.error('Registration error details:', error);
-      console.error('Error response:', error.response);
-      console.error('Error message:', error.message);
-      throw new Error(error.message || 'Registration failed');
+    } catch (error) {
+      const apiError = error as ApiError;
+      console.error('Registration error details:', apiError);
+      console.error('Error message:', apiError.message);
+      throw new Error(apiError.message || 'Registration failed');
     }
   },
 
@@ -57,7 +58,7 @@ export const authService = {
         email: payload.email,
         role: payload.role,
       };
-    } catch (error) {
+    } catch {
       throw new Error('Invalid token format');
     }
   },
@@ -91,7 +92,7 @@ export const authService = {
         id: authResponse.username, // Using username as ID since backend doesn't provide separate ID
         username: authResponse.username,
         email: '', // Backend doesn't return email in auth response
-        role: (authResponse as any).role || 'USER' // Backend returns role separately
+        role: authResponse.role || 'USER' // Backend returns role separately
       };
       localStorage.setItem('user', JSON.stringify(user));
     }

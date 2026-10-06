@@ -44,7 +44,7 @@ export const Register: React.FC = () => {
         password: formData.password
       });
       navigate('/');
-    } catch (err) {
+    } catch {
       // Error handled by useAuth hook
     } finally {
       setIsLoading(false);

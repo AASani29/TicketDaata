@@ -42,7 +42,7 @@ export interface UpdateTicketRequest {
   status?: 'AVAILABLE' | 'SOLD' | 'RESERVED';
 }
 
-export interface TicketResponse extends Ticket {}
+export type TicketResponse = Ticket;
 
 export interface TicketFormData {
   eventName: string;
@@ -62,7 +62,7 @@ export interface Order {
   updatedAt: string;
 }
 
-export interface OrderResponse extends Order {}
+export type OrderResponse = Order;
 
 export interface CreateOrderRequest {
   ticketId: string;

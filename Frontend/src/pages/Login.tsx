@@ -24,7 +24,7 @@ export const Login: React.FC = () => {
       setIsLoading(true);
       await login(formData);
       navigate('/');
-    } catch (err) {
+    } catch {
       // Error handled by useAuth hook
     } finally {
       setIsLoading(false);

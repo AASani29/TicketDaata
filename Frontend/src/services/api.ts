@@ -7,6 +7,11 @@ interface ApiError {
   code?: string;
 }
 
+interface BackendErrorBody {
+  message?: string;
+  error?: string;
+}
+
 class ApiService {
   private api: AxiosInstance;
   private tokenKey = import.meta.env.VITE_JWT_STORAGE_KEY || 'ticketdaata_token';
@@ -69,7 +74,7 @@ class ApiService {
         };
 
         if (error.response?.data) {
-          const errorData = error.response.data as any;
+          const errorData = error.response.data as BackendErrorBody;
           apiError.message = errorData.message || errorData.error || 'An error occurred';
         } else if (error.message) {
           apiError.message = error.message;
@@ -109,12 +114,12 @@ class ApiService {
     return response.data;
   }
 
-  public async post<T>(url: string, data?: any): Promise<T> {
+  public async post<T>(url: string, data?: unknown): Promise<T> {
     const response = await this.api.post<T>(url, data);
     return response.data;
   }
 
-  public async put<T>(url: string, data?: any): Promise<T> {
+  public async put<T>(url: string, data?: unknown): Promise<T> {
     const response = await this.api.put<T>(url, data);
     return response.data;
   }

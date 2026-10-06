@@ -24,8 +24,8 @@ export const Tickets: React.FC = () => {
         ? await ticketService.getAllTickets()
         : await ticketService.getTicketsByStatus(statusFilter);
       setTickets(data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load tickets');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : undefined) || 'Failed to load tickets');
     } finally {
       setIsLoading(false);
     }
@@ -42,8 +42,8 @@ export const Tickets: React.FC = () => {
       });
       alert('Order created successfully! Check your orders page.');
       loadTickets(); // Refresh to show updated status
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to create order');
+    } catch (err) {
+      alert((err instanceof Error ? err.message : undefined) || 'Failed to create order');
     }
   };
 

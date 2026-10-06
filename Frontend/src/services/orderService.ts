@@ -1,8 +1,9 @@
 import apiService from './api';
-import type { 
-  Order, 
-  CreateOrderRequest, 
-  OrderResponse 
+import type {
+  Order,
+  CreateOrderRequest,
+  OrderResponse,
+  ApiError
 } from '../types/api';
 
 export const orderService = {
@@ -10,8 +11,8 @@ export const orderService = {
   async getOrdersByUser(userId: string): Promise<Order[]> {
     try {
       return await apiService.get<Order[]>(`/api/orders/user/${userId}`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to fetch user orders');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to fetch user orders');
     }
   },
 
@@ -19,8 +20,8 @@ export const orderService = {
   async getOrdersBySeller(sellerId: string): Promise<Order[]> {
     try {
       return await apiService.get<Order[]>(`/api/orders/seller/${sellerId}`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to fetch seller orders');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to fetch seller orders');
     }
   },
 
@@ -28,8 +29,8 @@ export const orderService = {
   async getOrderById(id: string): Promise<Order> {
     try {
       return await apiService.get<Order>(`/api/orders/${id}`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to fetch order');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to fetch order');
     }
   },
 
@@ -37,8 +38,8 @@ export const orderService = {
   async createOrder(orderData: CreateOrderRequest): Promise<OrderResponse> {
     try {
       return await apiService.post<OrderResponse>('/api/orders', orderData);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to create order');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to create order');
     }
   },
 
@@ -46,8 +47,8 @@ export const orderService = {
   async approveOrder(id: string): Promise<OrderResponse> {
     try {
       return await apiService.put<OrderResponse>(`/api/orders/${id}/approve`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to approve order');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to approve order');
     }
   },
 
@@ -55,8 +56,8 @@ export const orderService = {
   async rejectOrder(id: string): Promise<OrderResponse> {
     try {
       return await apiService.put<OrderResponse>(`/api/orders/${id}/reject`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to reject order');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to reject order');
     }
   },
 
@@ -64,8 +65,8 @@ export const orderService = {
   async cancelOrder(id: string): Promise<OrderResponse> {
     try {
       return await apiService.put<OrderResponse>(`/api/orders/${id}/cancel`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to cancel order');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to cancel order');
     }
   },
 
@@ -73,8 +74,8 @@ export const orderService = {
   async simulatePayment(orderId: string): Promise<OrderResponse> {
     try {
       return await apiService.post<OrderResponse>(`/api/orders/${orderId}/payment`);
-    } catch (error: any) {
-      throw new Error(error.message || 'Payment failed');
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Payment failed');
     }
   }
 };

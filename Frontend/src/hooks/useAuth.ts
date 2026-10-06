@@ -29,14 +29,14 @@ export const useAuth = () => {
           id: authResponse.username,
           username: authResponse.username,
           email: '',
-          role: (authResponse as any).role || 'USER'
+          role: authResponse.role || 'USER'
         };
         setUser(user);
       }
-      
+
       return authResponse;
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -57,14 +57,14 @@ export const useAuth = () => {
           id: authResponse.username,
           username: authResponse.username,
           email: userData.email, // Use email from registration data
-          role: (authResponse as any).role || 'USER'
+          role: authResponse.role || 'USER'
         };
         setUser(user);
       }
-      
+
       return authResponse;
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

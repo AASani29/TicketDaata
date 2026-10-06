@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { apiService } from '../services/api';
+import type { ApiError } from '../types/api';
 
 interface RegisterFormData {
   username: string;
@@ -49,8 +50,8 @@ const RegisterForm: React.FC = () => {
       } else {
         setError(response.message || 'Registration failed');
       }
-    } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      setError((err as ApiError).message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -31,8 +31,8 @@ export const Orders: React.FC = () => {
       
       setBuyerOrders(buyerData);
       setSellerOrders(sellerData);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load orders');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : undefined) || 'Failed to load orders');
     } finally {
       setIsLoading(false);
     }
@@ -43,8 +43,8 @@ export const Orders: React.FC = () => {
       await orderService.approveOrder(orderId);
       alert('Order approved successfully!');
       loadOrders();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to approve order');
+    } catch (err) {
+      alert((err instanceof Error ? err.message : undefined) || 'Failed to approve order');
     }
   };
 
@@ -53,8 +53,8 @@ export const Orders: React.FC = () => {
       await orderService.rejectOrder(orderId);
       alert('Order rejected');
       loadOrders();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to reject order');
+    } catch (err) {
+      alert((err instanceof Error ? err.message : undefined) || 'Failed to reject order');
     }
   };
 
@@ -63,8 +63,8 @@ export const Orders: React.FC = () => {
       await orderService.simulatePayment(orderId);
       alert('Payment processed successfully!');
       loadOrders();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Payment failed');
+    } catch (err) {
+      alert((err instanceof Error ? err.message : undefined) || 'Payment failed');
     }
   };
 

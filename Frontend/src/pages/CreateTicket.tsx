@@ -47,8 +47,8 @@ export const CreateTicket: React.FC = () => {
       
       alert('Ticket created successfully!');
       navigate('/tickets');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create ticket');
+    } catch (err) {
+      setError((err instanceof Error ? err.message : undefined) || 'Failed to create ticket');
     } finally {
       setIsLoading(false);
     }
