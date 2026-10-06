@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - jwt-secret.yaml
+  - mongo/secret.yaml
+  - mongo/statefulset.yaml
+  - mongo/service.yaml
+  - rabbitmq/secret.yaml
+  - rabbitmq/pvc.yaml
+  - rabbitmq/deployment.yaml
+  - rabbitmq/service.yaml
+  - auth-service/configmap.yaml
+  - auth-service/deployment.yaml
+  - auth-service/service.yaml
+  - auth-service/hpa.yaml
+  - orders-service/configmap.yaml
+  - orders-service/deployment.yaml
+  - orders-service/service.yaml
+  - orders-service/hpa.yaml
+  - ticket-service/configmap.yaml
+  - ticket-service/deployment.yaml
+  - ticket-service/service.yaml
+  - ticket-service/hpa.yaml
+  - api-gateway/configmap.yaml
+  - api-gateway/deployment.yaml
+  - api-gateway/service.yaml
+  - api-gateway/hpa.yaml
+  - frontend/deployment.yaml
+  - frontend/service.yaml
+  - frontend/hpa.yaml
+  - ingress.yaml

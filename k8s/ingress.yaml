@@ -1,0 +1,37 @@
+# Single entry point: ingress-nginx routes /auth and /api to the gateway,
+# everything else to the static frontend. Requires ingress-nginx installed
+# in the kind cluster (see k8s/README.md) and the kind-cluster-config.yaml
+# port mappings so this is reachable at http://localhost/.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ticketdaata
+  namespace: ticketdaata
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 9003
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 9003
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

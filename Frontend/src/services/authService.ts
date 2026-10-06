@@ -25,9 +25,6 @@ export const authService = {
   // Register new user
   async register(userData: RegisterRequest): Promise<AuthResponse> {
     try {
-      console.log('Sending registration request:', userData);
-      console.log('API Base URL:', apiService.defaults?.baseURL);
-      
       const response = await apiService.post<AuthResponse>('/auth/register', userData);
       console.log('Registration response:', response);
       

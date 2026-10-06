@@ -1,33 +1,40 @@
 # TicketDaata Microservices Setup
 
-This project implements a microservice architecture for TicketDaata with the following services:
+This project implements a microservice architecture for TicketDaata with the following services.
+
+## Run it on Kubernetes
+
+The whole system (frontend, gateway, all services, MongoDB, RabbitMQ) deploys to a local [kind](https://kind.sigs.k8s.io/) cluster with plain manifests and autoscaling — see **[`k8s/README.md`](k8s/README.md)** for the full walkthrough, and the architecture note below on why Eureka was replaced with Kubernetes-native service discovery for that deployment.
+
+## Security note
+
+Earlier revisions of this repo had a real MongoDB Atlas username/password committed in plaintext in `AuthService`, `OrdersService`, and `ticketservice`'s `application.yml`. Those are gone from the current tree (config is now env-var driven, see each service's `application.yml` and the `k8s/` Secrets), but removing them from the tree doesn't erase git history — if you fork this or reuse that Atlas cluster, rotate the credential.
 
 ## Services
 
-### 1. Service Registry (Port: 8761)
+### Service Registry (legacy, not deployed)
 
 - **Location**: `ServiceRegistry/`
-- **Purpose**: Eureka server for service discovery
-- **URL**: http://localhost:8761
+- **Purpose**: Eureka server for service discovery — kept in the repo as a record of the original design, but no longer part of the running system. Discovery is Kubernetes-native now (or plain `localhost` URLs for non-k8s local dev); see the Architecture section below.
 
-### 2. API Gateway (Port: 9003)
+### 1. API Gateway (Port: 9003)
 
 - **Location**: `APIGateway/`
 - **Purpose**: Routes requests to appropriate microservices
 - **URL**: http://localhost:9003
 
-### 3. Auth Service (Port: 9001)
+### 2. Auth Service (Port: 9001)
 
 - **Location**: `AuthService/`
 - **Purpose**: JWT-based authentication and authorization with MongoDB persistence
-- **Database**: MongoDB Atlas
+- **Database**: MongoDB (local/in-cluster by default; override `MONGODB_URI` for Atlas or anywhere else)
 - **URL**: http://localhost:9001
 
-### 4. Orders Service (Port: 9002)
+### 3. Orders Service (Port: 9002)
 
 - **Location**: `OrdersService/`
 - **Purpose**: Order management with lifecycle states, temporary reservations, and TTL-based expiration
-- **Database**: MongoDB Atlas
+- **Database**: MongoDB (local/in-cluster by default; override `MONGODB_URI` for Atlas or anywhere else)
 - **URL**: http://localhost:9002
 - **Features**:
   - Order creation and management
@@ -50,28 +57,21 @@ This will start all services in the correct order with appropriate delays.
 
 ### Manual Start (Individual Services)
 
-### 1. Start Service Registry
-
-```bash
-cd ServiceRegistry
-./mvnw spring-boot:run
-```
-
-### 2. Start Auth Service
+### 1. Start Auth Service
 
 ```bash
 cd AuthService
 ./mvnw spring-boot:run
 ```
 
-### 3. Start Orders Service
+### 2. Start Orders Service
 
 ```bash
 cd OrdersService
 ./mvnw spring-boot:run
 ```
 
-### 4. Start API Gateway
+### 3. Start API Gateway
 
 ```bash
 cd APIGateway
@@ -155,17 +155,17 @@ Authorization: Bearer <jwt-token>
 ## Architecture
 
 ```
-Frontend (React/Angular/Vue)
+Frontend (React + Vite)
     ↓
 API Gateway (Port: 9003)
     ↓
 ┌─────────────────┬─────────────────┬─────────────────┐
-│   Auth Service  │  User Service   │ Ticket Service  │
-│   (Port: 9001)  │  (Port: 9002)   │  (Port: 9004)   │
+│   Auth Service  │  Orders Service │ Ticket Service  │
+│   (Port: 9001)  │  (Port: 9002)   │  (Port: 8082)   │
 └─────────────────┴─────────────────┴─────────────────┘
-    ↑
-Service Registry (Port: 8761)
 ```
+
+Service-to-service calls use plain `http://<service-name>:<port>` URLs. Locally that's `localhost`; on Kubernetes it's the Service's DNS name, resolved by kube-dns — no separate discovery mechanism needed. `ServiceRegistry/` (a Eureka server) still exists in this repo as a record of the original design, but nothing registers to it anymore; see [`k8s/README.md`](k8s/README.md#architecture-change-eureka--kubernetes-native-discovery) for why it was dropped.
 
 ## Database
 
@@ -222,10 +222,9 @@ The Auth Service uses MongoDB Atlas for user data persistence. To set up:
 
 ## Prerequisites
 
-- Java 21 or higher
+- Java 17
 - Maven 3.6+
-- MongoDB Atlas account (for Auth Service)
-- Internet connection (for Eureka service discovery)
+- A local MongoDB and RabbitMQ (or override `MONGODB_URI`/`RABBITMQ_*` to point elsewhere)
 
 ## Technology Stack
 
@@ -233,7 +232,6 @@ The Auth Service uses MongoDB Atlas for user data persistence. To set up:
 - **Spring Cloud 2025.0.0**
 - **Spring Security**
 - **Spring Data MongoDB**
-- **Netflix Eureka** (Service Discovery)
 - **Spring Cloud Gateway**
 - **JWT (JSON Web Tokens)**
 - **MongoDB Atlas** (Database)

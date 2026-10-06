@@ -6,14 +6,9 @@ spring:
     name: TICKETDAATA-TICKET-SERVICE
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority}
+      uri: ${MONGODB_URI:mongodb://localhost:27017/ticketdaata_tickets}
       database: ${MONGODB_DATABASE:ticketdaata_tickets}
       auto-index-creation: true
-      host: hackathon.rflqj.mongodb.net
-      port: 27017
-      username: ahmedalfey
-      password: sani9999
-      authentication-database: admin
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
@@ -22,10 +17,10 @@ spring:
       write-dates-as-timestamps: false
   # Messaging Configuration
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
     virtual-host: /
     connection-timeout: 10000
     listener:
@@ -39,7 +34,7 @@ spring:
 
 # Messaging Mode Configuration
 messaging:
-  mode: inmemory # Options: inmemory, rabbitmq
+  mode: rabbitmq # Options: inmemory, rabbitmq
 
 # CORS Configuration
 cors:
@@ -53,19 +48,17 @@ management:
   endpoint:
     health:
       show-details: always
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-  instance:
-    hostname: localhost
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 logging:
   level:
-    com.ticketdaata.ticketservice: DEBUG
-    org.springframework.data.mongodb: DEBUG
-    com.mongodb: DEBUG
-    org.springframework.boot.autoconfigure.mongo: DEBUG
+    com.ticketdaata.ticketservice: INFO
+    org.springframework.data.mongodb: INFO
+    com.mongodb: INFO
+    org.springframework.boot.autoconfigure.mongo: INFO

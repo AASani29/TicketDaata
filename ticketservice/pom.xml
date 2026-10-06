@@ -55,12 +55,12 @@
             <scope>test</scope>
         </dependency>
         
-        <!-- Eureka Client for Service Discovery -->
+        <!-- Actuator for health/liveness/readiness probes -->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        
+
         <!-- RabbitMQ for Message Queue -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

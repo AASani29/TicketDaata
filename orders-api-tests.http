@@ -58,33 +58,16 @@ Content-Type: application/json
   "sellerUsername": "john_seller"
 }
 
-### Create order directly to Orders Service (for testing direct access)
-POST {{ordersUrl}}/orders
-Content-Type: application/json
-
-{
-  "userId": "direct_user",
-  "ticketId": "direct_ticket",
-  "ticketTitle": "Direct Service Test",
-  "eventName": "Direct Test Event",
-  "eventDate": "2024-12-25",
-  "seatInfo": "Section C, Row 3, Seat 7",
-  "price": 100.00,
-  "quantity": 1,
-  "sellerId": "direct_seller",
-  "sellerUsername": "direct_seller_name"
-}
-
 ###
 # 3. GET ORDER BY ID
 # Replace {orderId} with actual order ID from create response
-GET {{baseUrl}}/api/orders/67890abcdef123456789
+GET {{baseUrl}}/api/orders/68d755e6e57033568b859149
 Accept: application/json
 
 ###
 # 4. GET USER ORDERS
 # Get all orders for a specific user
-GET {{baseUrl}}/api/orders/user/user123
+GET {{baseUrl}}/api/orders/user/68b3585d9b9d637b9c12ac3d
 Accept: application/json
 
 ###

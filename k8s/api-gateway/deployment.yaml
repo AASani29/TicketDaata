@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: ticketdaata
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: ticketdaata/api-gateway:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9003
+          envFrom:
+            - configMapRef:
+                name: api-gateway-config
+          resources:
+            requests:
+              cpu: 500m
+              memory: 320Mi
+            limits:
+              cpu: 1500m
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9003
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9003
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9003
+            periodSeconds: 15

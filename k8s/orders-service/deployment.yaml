@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-service
+  namespace: ticketdaata
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: orders-service
+  template:
+    metadata:
+      labels:
+        app: orders-service
+    spec:
+      containers:
+        - name: orders-service
+          image: ticketdaata/orders-service:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9002
+          envFrom:
+            - configMapRef:
+                name: orders-service-config
+          env:
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-credentials
+                  key: username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-credentials
+                  key: password
+            - name: MONGODB_URI
+              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongo.ticketdaata.svc.cluster.local:27017/ticketdaata_orders?authSource=admin"
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: password
+          resources:
+            requests:
+              cpu: 500m
+              memory: 320Mi
+            limits:
+              cpu: 1500m
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9002
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9002
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9002
+            periodSeconds: 15

@@ -1,11 +1,10 @@
 @echo off
 echo Starting TicketDaata Microservices...
 echo.
-
-echo Starting Service Registry...
-start "Service Registry" cmd /k "cd /d D:\SDA_Project\TicketDaata\ServiceRegistry && mvnw.cmd spring-boot:run"
-
-timeout /t 15 /nobreak > nul
+echo (Service Registry/Eureka is no longer started - services talk to each
+echo  other via plain localhost URLs now that discovery is Kubernetes-native
+echo  for the k8s deployment; see k8s/README.md.)
+echo.
 
 echo Starting Auth Service...
 start "Auth Service" cmd /k "cd /d D:\SDA_Project\TicketDaata\AuthService && mvnw.cmd spring-boot:run"
@@ -28,7 +27,6 @@ start "API Gateway" cmd /k "cd /d D:\SDA_Project\TicketDaata\APIGateway && mvnw.
 echo.
 echo All services are starting...
 echo.
-echo Service Registry: http://localhost:8761
 echo Auth Service: http://localhost:9001
 echo Ticket Service: http://localhost:8082
 echo Orders Service: http://localhost:9002

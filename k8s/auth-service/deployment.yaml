@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: ticketdaata
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: ticketdaata/auth-service:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 9001
+          envFrom:
+            - configMapRef:
+                name: auth-service-config
+          env:
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-credentials
+                  key: username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-credentials
+                  key: password
+            - name: MONGODB_URI
+              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongo.ticketdaata.svc.cluster.local:27017/ticketdaata_auth?authSource=admin"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: secret
+          resources:
+            requests:
+              cpu: 500m
+              memory: 320Mi
+            limits:
+              cpu: 1500m
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9001
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9001
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9001
+            periodSeconds: 15

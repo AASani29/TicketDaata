@@ -22,16 +22,17 @@ export interface Ticket {
   price: number;
   eventId: string;
   eventName?: string;
+  userId: string;
   status: 'AVAILABLE' | 'SOLD' | 'RESERVED';
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateTicketRequest {
-  title: string;
+  eventName: string;
   description: string;
   price: number;
-  eventId: string;
+  userId: string;
 }
 
 export interface UpdateTicketRequest {
@@ -41,13 +42,30 @@ export interface UpdateTicketRequest {
   status?: 'AVAILABLE' | 'SOLD' | 'RESERVED';
 }
 
+export interface TicketResponse extends Ticket {}
+
+export interface TicketFormData {
+  eventName: string;
+  description: string;
+  price: number;
+}
+
 export interface Order {
   id: string;
   userId: string;
   ticketId: string;
   quantity: number;
   totalAmount: number;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'APPROVED';
+  expiresAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface OrderResponse extends Order {}
+
+export interface CreateOrderRequest {
+  ticketId: string;
+  userId: string;
+  quantity: number;
 }

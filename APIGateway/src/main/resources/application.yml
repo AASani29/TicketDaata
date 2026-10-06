@@ -1,18 +1,14 @@
 server:
-  port: ${API_GATEWAY_PORT:9003}
+  port: 9003
 
 spring:
   application:
     name: TICKETDAATA-API-GATEWAY
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
       routes:
         - id: TICKETDAATA-AUTH-SERVICE
-          uri: lb://TICKETDAATA-AUTH-SERVICE
+          uri: ${AUTH_SERVICE_URL:http://localhost:9001}
           predicates:
             - Path=/auth/**
           filters:
@@ -21,7 +17,7 @@ spring:
                 name: authCircuitBreaker
                 fallbackUri: forward:/fallback/auth
         - id: TICKETDAATA-ORDERS-SERVICE
-          uri: lb://TICKETDAATA-ORDERS-SERVICE
+          uri: ${ORDERS_SERVICE_URL:http://localhost:9002}
           predicates:
             - Path=/api/orders,/api/orders/**
           filters:
@@ -31,7 +27,7 @@ spring:
                 name: ordersCircuitBreaker
                 fallbackUri: forward:/fallback/orders
         - id: TICKETDAATA-TICKET-SERVICE
-          uri: lb://TICKETDAATA-TICKET-SERVICE
+          uri: ${TICKET_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/tickets,/api/tickets/**
           filters:
@@ -40,15 +36,6 @@ spring:
               args:
                 name: ticketCircuitBreaker
                 fallbackUri: forward:/fallback/tickets
-        - id: EVENT-SERVICE
-          uri: lb://TICKETDAATA-EVENT-SERVICE
-          predicates:
-            - Path=/api/events/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: eventCircuitBreaker
-                fallbackUri: forward:/fallback/events
       default-filters:
         - name: Retry
           args:
@@ -64,20 +51,16 @@ management:
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
   health:
     circuitbreakers:
       enabled: true
-
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
-  instance:
-    hostname: localhost
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    com.netflix.discovery: DEBUG
+    org.springframework.cloud.gateway: INFO

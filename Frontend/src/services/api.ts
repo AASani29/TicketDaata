@@ -13,7 +13,7 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
+      baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -139,5 +139,5 @@ class ApiService {
 }
 
 export const apiService = new ApiService();
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080';
 export default apiService;

@@ -6,23 +6,18 @@ spring:
     name: TICKETDAATA-ORDERS-SERVICE
   data:
     mongodb:
-      uri: mongodb+srv://ahmedalfey:sani9999@hackathon.rflqj.mongodb.net/TicketDaata?retryWrites=true&w=majority
-      database: ticketdaata_orders
+      uri: ${MONGODB_URI:mongodb://localhost:27017/ticketdaata_orders}
+      database: ${MONGODB_DATABASE:ticketdaata_orders}
       auto-index-creation: true
-      host: hackathon.rflqj.mongodb.net
-      port: 27017
-      username: ahmedalfey
-      password: sani9999
-      authentication-database: admin
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration
   # Messaging Configuration
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
     virtual-host: /
     connection-timeout: 10000
     listener:
@@ -36,7 +31,7 @@ spring:
 
 # Messaging Mode Configuration
 messaging:
-  mode: inmemory # Options: inmemory, rabbitmq
+  mode: rabbitmq # Options: inmemory, rabbitmq
 
 # Order Configuration
 orders:
@@ -44,14 +39,9 @@ orders:
     ttl-minutes: 15 # Time to live for temporary reservations
     cleanup-interval-minutes: 5 # How often to check for expired orders
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    hostname: localhost
+services:
+  ticket:
+    url: ${TICKET_SERVICE_URL:http://localhost:8082}
 
 feign:
   client:
@@ -61,9 +51,25 @@ feign:
         readTimeout: 5000
         loggerLevel: basic
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
 logging:
   level:
-    com.ticketdaata.ordersservice: DEBUG
-    org.springframework.data.mongodb: DEBUG
-    com.mongodb: DEBUG
-    org.springframework.boot.autoconfigure.mongo: DEBUG
+    com.ticketdaata.ordersservice: INFO
+    org.springframework.data.mongodb: INFO
+    com.mongodb: INFO
+    org.springframework.boot.autoconfigure.mongo: INFO

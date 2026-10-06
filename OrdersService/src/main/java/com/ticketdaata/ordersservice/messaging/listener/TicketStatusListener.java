@@ -41,19 +41,19 @@ public class TicketStatusListener {
 
     private void handleTicketReserved(TicketStatusUpdateMessage message) {
         log.info("Ticket {} reserved for order {}", message.getTicketId(), message.getOrderId());
-        // Additional logic for when ticket is successfully reserved
-        // For example, you could update order status or send notification
+        
+        
     }
 
     private void handleTicketReleased(TicketStatusUpdateMessage message) {
         log.info("Ticket {} released for order {}", message.getTicketId(), message.getOrderId());
-        // Additional logic for when ticket is released
-        // For example, you could clean up pending orders or send notification
+        
+        
     }
 
     private void handleTicketSold(TicketStatusUpdateMessage message) {
         log.info("Ticket {} marked as sold for order {}", message.getTicketId(), message.getOrderId());
-        // Additional logic for when ticket is sold
-        // For example, you could trigger payment processing or send confirmation
+        
+        
     }
 }

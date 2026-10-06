@@ -83,7 +83,8 @@ export const Orders: React.FC = () => {
     }
   };
 
-  const formatTimeRemaining = (expiresAt: string) => {
+  const formatTimeRemaining = (expiresAt?: string) => {
+    if (!expiresAt) return 'Unknown';
     const now = new Date();
     const expiry = new Date(expiresAt);
     const diff = expiry.getTime() - now.getTime();

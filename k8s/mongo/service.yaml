@@ -1,0 +1,13 @@
+# Headless Service: gives the StatefulSet pod a stable DNS name (mongo.ticketdaata.svc.cluster.local)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: ticketdaata
+spec:
+  clusterIP: None
+  selector:
+    app: mongo
+  ports:
+    - port: 27017
+      targetPort: 27017

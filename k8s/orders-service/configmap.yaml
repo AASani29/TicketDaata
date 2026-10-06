@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orders-service-config
+  namespace: ticketdaata
+data:
+  MONGODB_DATABASE: ticketdaata_orders
+  RABBITMQ_HOST: rabbitmq.ticketdaata.svc.cluster.local
+  RABBITMQ_PORT: "5672"
+  TICKET_SERVICE_URL: "http://ticket-service.ticketdaata.svc.cluster.local:8082"

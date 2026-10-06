@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: ticketdaata
+data:
+  AUTH_SERVICE_URL: "http://auth-service.ticketdaata.svc.cluster.local:9001"
+  ORDERS_SERVICE_URL: "http://orders-service.ticketdaata.svc.cluster.local:9002"
+  TICKET_SERVICE_URL: "http://ticket-service.ticketdaata.svc.cluster.local:8082"
