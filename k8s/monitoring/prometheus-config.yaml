@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: api-gateway
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['api-gateway.ticketdaata.svc.cluster.local:9003']
+
+      - job_name: auth-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['auth-service.ticketdaata.svc.cluster.local:9001']
+
+      - job_name: orders-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['orders-service.ticketdaata.svc.cluster.local:9002']
+
+      - job_name: ticket-service
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets: ['ticket-service.ticketdaata.svc.cluster.local:8082']

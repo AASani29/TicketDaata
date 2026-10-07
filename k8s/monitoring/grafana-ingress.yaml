@@ -1,0 +1,20 @@
+# No rewrite-target annotation here: GF_SERVER_SERVE_FROM_SUB_PATH=true means
+# Grafana itself expects the /grafana prefix on the wire. Stripping it at the
+# ingress (unlike the app's own k8s/ingress.yaml) would break asset loading.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000

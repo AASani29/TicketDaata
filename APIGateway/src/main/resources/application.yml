@@ -47,7 +47,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info,gateway,metrics,prometheus
   endpoint:
     health:
       show-details: always
@@ -60,6 +60,16 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+        spring:
+          cloud:
+            gateway:
+              requests: true
 
 logging:
   level:

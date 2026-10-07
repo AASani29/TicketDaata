@@ -31,3 +31,4 @@ resources:
   - frontend/service.yaml
   - frontend/hpa.yaml
   - ingress.yaml
+  - monitoring
