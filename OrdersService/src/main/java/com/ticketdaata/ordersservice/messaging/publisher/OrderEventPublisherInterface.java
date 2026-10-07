@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public interface OrderEventPublisherInterface {
     void publishOrderCreated(String orderId, String ticketId, String userId, BigDecimal totalAmount);
-    void publishOrderCompleted(String orderId, String ticketId, String userId, BigDecimal totalAmount);
+    void publishOrderCompleted(String orderId, String ticketId, String userId, String sellerId, BigDecimal totalAmount);
     void publishOrderCancelled(String orderId, String ticketId, String userId, String reason);
     void publishOrderExpired(String orderId, String ticketId, String userId);
     void publishTicketReservationRequest(String ticketId, String orderId, String userId, Long version);

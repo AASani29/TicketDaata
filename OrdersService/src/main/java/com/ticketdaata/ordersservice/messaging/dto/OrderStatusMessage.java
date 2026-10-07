@@ -16,6 +16,7 @@ public class OrderStatusMessage {
     private String orderId;
     private String ticketId;
     private String userId;
+    private String sellerId;
     private String status; // PENDING, COMPLETED, CANCELLED, EXPIRED
     private String previousStatus;
     private BigDecimal totalAmount;

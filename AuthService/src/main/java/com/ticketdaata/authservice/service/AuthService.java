@@ -1,6 +1,7 @@
 package com.ticketdaata.authservice.service;
 
 import com.ticketdaata.authservice.dto.AuthResponse;
+import com.ticketdaata.authservice.dto.BalanceResponse;
 import com.ticketdaata.authservice.dto.LoginRequest;
 import com.ticketdaata.authservice.dto.RegisterRequest;
 import com.ticketdaata.authservice.entity.User;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -62,5 +64,12 @@ public class AuthService {
         }
 
         return new AuthResponse(null, null, null, "Invalid username or password");
+    }
+
+    public Optional<BalanceResponse> getBalance(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> new BalanceResponse(
+                        user.getUsername(),
+                        user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO));
     }
 }

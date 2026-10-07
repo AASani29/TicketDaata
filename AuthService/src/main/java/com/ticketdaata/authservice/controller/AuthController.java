@@ -1,6 +1,7 @@
 package com.ticketdaata.authservice.controller;
 
 import com.ticketdaata.authservice.dto.AuthResponse;
+import com.ticketdaata.authservice.dto.BalanceResponse;
 import com.ticketdaata.authservice.dto.LoginRequest;
 import com.ticketdaata.authservice.dto.RegisterRequest;
 import com.ticketdaata.authservice.service.AuthService;
@@ -79,5 +80,12 @@ public class AuthController {
         // In a stateless JWT system, logout is handled on the client side
         // by removing the token from storage
         return ResponseEntity.ok(new AuthResponse(null, null, null, "Logout successful"));
+    }
+
+    @GetMapping("/balance/{username}")
+    public ResponseEntity<BalanceResponse> getBalance(@PathVariable String username) {
+        return authService.getBalance(username)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

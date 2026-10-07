@@ -20,9 +20,9 @@ public class InMemoryOrderEventPublisher implements OrderEventPublisherInterface
     }
 
     @Override
-    public void publishOrderCompleted(String orderId, String ticketId, String userId, BigDecimal totalAmount) {
-        log.info("📤 [InMemory] Published order completed event for order: {}, ticket: {}, user: {}, amount: {}", 
-                orderId, ticketId, userId, totalAmount);
+    public void publishOrderCompleted(String orderId, String ticketId, String userId, String sellerId, BigDecimal totalAmount) {
+        log.info("📤 [InMemory] Published order completed event for order: {}, ticket: {}, user: {}, seller: {}, amount: {}",
+                orderId, ticketId, userId, sellerId, totalAmount);
     }
 
     @Override

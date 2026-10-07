@@ -1,153 +1,152 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { Calendar, MapPin, Tag, PlusCircle, TicketX, ShoppingCart, Check } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
+import { useCart } from '../components/CartProvider';
 import { ticketService } from '../services/ticketService';
-import { orderService } from '../services/orderService';
+import { useToast } from '../components/ui/Toast';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+import { Spinner } from '../components/ui/Spinner';
+import { EmptyState } from '../components/ui/EmptyState';
 import type { Ticket } from '../types/api';
+
+const STATUS_FILTERS = ['AVAILABLE', 'RESERVED', 'SOLD', 'ALL'] as const;
 
 export const Tickets: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('AVAILABLE');
   const { user, isAuthenticated } = useAuthContext();
+  const { addToCart, isInCart } = useCart();
+  const { showToast } = useToast();
 
-  useEffect(() => {
-    loadTickets();
-  }, [statusFilter]);
-
-  const loadTickets = async () => {
+  const loadTickets = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
-      const data = statusFilter === 'ALL' 
+      const data = statusFilter === 'ALL'
         ? await ticketService.getAllTickets()
         : await ticketService.getTicketsByStatus(statusFilter);
       setTickets(data);
     } catch (err) {
-      setError((err instanceof Error ? err.message : undefined) || 'Failed to load tickets');
+      showToast('error', err instanceof Error ? err.message : 'Failed to load tickets');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [statusFilter, showToast]);
 
-  const handleBuyTicket = async (ticketId: string) => {
-    if (!user) return;
-    
-    try {
-      await orderService.createOrder({
-        ticketId,
-        userId: user.id,
-        quantity: 1
-      });
-      alert('Order created successfully! Check your orders page.');
-      loadTickets(); // Refresh to show updated status
-    } catch (err) {
-      alert((err instanceof Error ? err.message : undefined) || 'Failed to create order');
-    }
+  useEffect(() => {
+    loadTickets();
+  }, [loadTickets]);
+
+  const handleAddToCart = (ticket: Ticket) => {
+    addToCart({
+      ticketId: ticket.id,
+      eventName: ticket.eventName,
+      category: ticket.category,
+      location: ticket.location,
+      eventDate: ticket.eventDate,
+      seatInfo: ticket.seatInfo,
+      price: ticket.price,
+      sellerId: ticket.sellerId
+    });
+    showToast('success', `${ticket.eventName} added to cart.`);
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <Spinner fullPage size="lg" />;
   }
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Browse Tickets</h1>
+        <h1 className="text-3xl font-bold text-secondary-900">Browse Tickets</h1>
         {isAuthenticated && (
-          <Link to="/create-ticket" className="btn-primary">
-            Sell a Ticket
+          <Link to="/create-ticket">
+            <Button icon={<PlusCircle className="h-4 w-4" />}>Sell a Ticket</Button>
           </Link>
         )}
       </div>
 
-      {/* Filter Options */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Filter by Status
+        <label className="block text-sm font-medium text-secondary-700 mb-2">
+          Filter by status
         </label>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="input-field max-w-xs"
         >
-          <option value="AVAILABLE">Available</option>
-          <option value="RESERVED">Reserved</option>
-          <option value="SOLD">Sold</option>
-          <option value="ALL">All</option>
+          {STATUS_FILTERS.map((status) => (
+            <option key={status} value={status}>
+              {status === 'ALL' ? 'All' : status.charAt(0) + status.slice(1).toLowerCase()}
+            </option>
+          ))}
         </select>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
-        </div>
-      )}
-
       {tickets.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No tickets found</p>
-          {isAuthenticated && (
-            <Link to="/create-ticket" className="btn-primary mt-4 inline-block">
-              Create the First Ticket
-            </Link>
-          )}
-        </div>
+        <EmptyState
+          icon={<TicketX className="h-6 w-6" />}
+          title="No tickets found"
+          description="There are no tickets matching this filter right now."
+          action={
+            isAuthenticated ? (
+              <Link to="/create-ticket">
+                <Button icon={<PlusCircle className="h-4 w-4" />}>Create the first ticket</Button>
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tickets.map((ticket) => (
-            <div key={ticket.id} className="card">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {ticket.eventName}
-                </h3>
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    ticket.status === 'AVAILABLE'
-                      ? 'bg-green-100 text-green-800'
-                      : ticket.status === 'RESERVED'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {ticket.status}
-                </span>
+            <div key={ticket.id} className="card flex flex-col">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-lg font-semibold text-secondary-900">{ticket.eventName}</h3>
+                <Badge status={ticket.status} />
               </div>
-              
-              <p className="text-gray-600 mb-4">{ticket.description}</p>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-blue-600">
-                  ${ticket.price}
-                </span>
-                
+
+              <div className="space-y-1.5 text-sm text-secondary-600 mb-4">
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-secondary-400" />
+                  {ticket.category}
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-secondary-400" />
+                  {ticket.location}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-secondary-400" />
+                  {new Date(ticket.eventDate).toLocaleString()}
+                </div>
+                {ticket.seatInfo && <p className="pl-6 text-secondary-500">Seat: {ticket.seatInfo}</p>}
+              </div>
+
+              <div className="mt-auto flex justify-between items-center pt-4 border-t border-secondary-100">
+                <span className="text-2xl font-bold text-primary-600">${ticket.price}</span>
+
                 {isAuthenticated && ticket.status === 'AVAILABLE' && user?.id !== ticket.userId && (
-                  <button
-                    onClick={() => handleBuyTicket(ticket.id)}
-                    className="btn-primary"
-                  >
-                    Buy Now
-                  </button>
+                  isInCart(ticket.id) ? (
+                    <Button variant="secondary" icon={<Check className="h-4 w-4" />} disabled>
+                      In Cart
+                    </Button>
+                  ) : (
+                    <Button icon={<ShoppingCart className="h-4 w-4" />} onClick={() => handleAddToCart(ticket)}>
+                      Add to Cart
+                    </Button>
+                  )
                 )}
-                
+
                 {user?.id === ticket.userId && (
-                  <span className="text-sm text-gray-500">Your ticket</span>
+                  <span className="text-sm text-secondary-500">Your ticket</span>
                 )}
-                
+
                 {!isAuthenticated && (
-                  <Link to="/login" className="btn-secondary">
-                    Login to Buy
+                  <Link to="/login">
+                    <Button variant="secondary">Login to Buy</Button>
                   </Link>
                 )}
-              </div>
-              
-              <div className="mt-4 text-sm text-gray-500">
-                <p>Posted: {new Date(ticket.createdAt).toLocaleDateString()}</p>
               </div>
             </div>
           ))}

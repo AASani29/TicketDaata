@@ -85,7 +85,7 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
         order.setUpdatedAt(LocalDateTime.now());
         order.setExpirationTime(ORDER_EXPIRATION_MINUTES);
-        order.setSellerId(ticket.getSellerId().toString());
+        order.setSellerId(ticket.getSellerId());
         order.setSellerUsername(""); // You'll get this from user service later
 
         Order savedOrder = orderRepository.save(order);
@@ -154,6 +154,7 @@ public class OrderService {
                 orderId,
                 order.getTicketId(),
                 order.getUserId(),
+                order.getSellerId(),
                 order.getTotalAmount()
         );
         

@@ -7,7 +7,7 @@ import type {
 } from '../types/api';
 
 export const orderService = {
-  // Get all orders for a user
+  // Get all orders for a user (as buyer)
   async getOrdersByUser(userId: string): Promise<Order[]> {
     try {
       return await apiService.get<Order[]>(`/api/orders/user/${userId}`);
@@ -43,39 +43,22 @@ export const orderService = {
     }
   },
 
-  // Approve order (seller action)
-  async approveOrder(id: string): Promise<OrderResponse> {
+  // Pay for a pending order (buyer action) - completes the purchase
+  async payOrder(id: string): Promise<OrderResponse> {
     try {
-      return await apiService.put<OrderResponse>(`/api/orders/${id}/approve`);
-    } catch (error) {
-      throw new Error((error as ApiError).message || 'Failed to approve order');
-    }
-  },
-
-  // Reject order (seller action)
-  async rejectOrder(id: string): Promise<OrderResponse> {
-    try {
-      return await apiService.put<OrderResponse>(`/api/orders/${id}/reject`);
-    } catch (error) {
-      throw new Error((error as ApiError).message || 'Failed to reject order');
-    }
-  },
-
-  // Cancel order (buyer action)
-  async cancelOrder(id: string): Promise<OrderResponse> {
-    try {
-      return await apiService.put<OrderResponse>(`/api/orders/${id}/cancel`);
-    } catch (error) {
-      throw new Error((error as ApiError).message || 'Failed to cancel order');
-    }
-  },
-
-  // Simulate payment
-  async simulatePayment(orderId: string): Promise<OrderResponse> {
-    try {
-      return await apiService.post<OrderResponse>(`/api/orders/${orderId}/payment`);
+      const paymentId = crypto.randomUUID();
+      return await apiService.post<OrderResponse>(`/api/orders/${id}/complete`, { paymentId });
     } catch (error) {
       throw new Error((error as ApiError).message || 'Payment failed');
+    }
+  },
+
+  // Cancel a pending order (either party)
+  async cancelOrder(id: string, reason = 'Cancelled by user'): Promise<OrderResponse> {
+    try {
+      return await apiService.post<OrderResponse>(`/api/orders/${id}/cancel`, { reason });
+    } catch (error) {
+      throw new Error((error as ApiError).message || 'Failed to cancel order');
     }
   }
 };

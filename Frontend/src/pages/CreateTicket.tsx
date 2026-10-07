@@ -1,31 +1,51 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Info } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
 import { ticketService } from '../services/ticketService';
+import { useToast } from '../components/ui/Toast';
+import { Button } from '../components/ui/Button';
+import { Input, Select, Textarea } from '../components/ui/Input';
+import { Alert } from '../components/ui/Alert';
 import type { TicketFormData } from '../types/api';
+
+const CATEGORY_OPTIONS = [
+  { value: 'Concert', label: 'Concert' },
+  { value: 'Sports', label: 'Sports' },
+  { value: 'Theater', label: 'Theater' },
+  { value: 'Comedy', label: 'Comedy' },
+  { value: 'Conference', label: 'Conference' },
+  { value: 'Other', label: 'Other' },
+];
+
+const minEventDate = new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16);
 
 export const CreateTicket: React.FC = () => {
   const [formData, setFormData] = useState<TicketFormData>({
     eventName: '',
-    description: '',
+    category: 'Concert',
+    location: '',
+    eventDate: '',
+    seatInfo: '',
     price: 0
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuthContext();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: name === 'price' ? parseFloat(value) || 0 : value
-    });
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       setError('You must be logged in to create a ticket');
       return;
@@ -39,16 +59,22 @@ export const CreateTicket: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       await ticketService.createTicket({
-        ...formData,
-        userId: user.id
+        eventName: formData.eventName,
+        category: formData.category,
+        location: formData.location,
+        eventDate: formData.eventDate,
+        seatInfo: formData.seatInfo || undefined,
+        price: formData.price,
+        userId: user.id,
+        sellerId: user.id,
       });
-      
-      alert('Ticket created successfully!');
+
+      showToast('success', 'Ticket created successfully.');
       navigate('/tickets');
     } catch (err) {
-      setError((err instanceof Error ? err.message : undefined) || 'Failed to create ticket');
+      setError(err instanceof Error ? err.message : 'Failed to create ticket');
     } finally {
       setIsLoading(false);
     }
@@ -56,93 +82,97 @@ export const CreateTicket: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Sell a Ticket</h1>
+      <h1 className="text-3xl font-bold text-secondary-900 mb-8">Sell a Ticket</h1>
 
       <div className="card">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+          <Alert variant="error" className="mb-6">
             {error}
-          </div>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 mb-2">
-              Event Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="eventName"
-              name="eventName"
-              value={formData.eventName}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Event name"
+            name="eventName"
+            value={formData.eventName}
+            onChange={handleChange}
+            placeholder="e.g., Taylor Swift Concert 2026"
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              label="Category"
+              name="category"
+              options={CATEGORY_OPTIONS}
+              value={formData.category}
               onChange={handleChange}
-              className="input-field"
-              placeholder="e.g., Taylor Swift Concert 2024"
+            />
+
+            <Input
+              label="Location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="e.g., Wembley Stadium"
               required
             />
           </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Description <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="input-field"
-              rows={4}
-              placeholder="Describe your ticket, seat location, date, venue, etc."
-              required
-            />
-          </div>
+          <Input
+            label="Event date & time"
+            type="datetime-local"
+            name="eventDate"
+            value={formData.eventDate}
+            onChange={handleChange}
+            min={minEventDate}
+            required
+          />
 
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-              Price ($) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              value={formData.price || ''}
-              onChange={handleChange}
-              className="input-field"
-              placeholder="0.00"
-              min="0.01"
-              step="0.01"
-              required
-            />
-          </div>
+          <Textarea
+            label="Seat information (optional)"
+            name="seatInfo"
+            value={formData.seatInfo}
+            onChange={handleChange}
+            rows={2}
+            placeholder="e.g., Section B, Row 12, Seat 5"
+          />
 
-          <div className="flex justify-between items-center pt-6">
-            <button
-              type="button"
-              onClick={() => navigate('/tickets')}
-              className="btn-secondary"
-            >
+          <Input
+            label="Price ($)"
+            type="number"
+            name="price"
+            value={formData.price || ''}
+            onChange={handleChange}
+            placeholder="0.00"
+            min="0.01"
+            step="0.01"
+            required
+          />
+
+          <div className="flex justify-between items-center pt-4">
+            <Button type="button" variant="secondary" onClick={() => navigate('/tickets')}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Creating...' : 'Create Ticket'}
-            </button>
+            </Button>
+            <Button type="submit" isLoading={isLoading}>
+              Create Ticket
+            </Button>
           </div>
         </form>
       </div>
 
-      <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-blue-900 mb-2">How it works</h3>
-        <ul className="text-blue-800 space-y-1">
-          <li>• Your ticket will be listed as "Available" for buyers to see</li>
-          <li>• When someone places an order, the ticket becomes "Reserved" for 15 minutes</li>
-          <li>• You can approve or reject the order during this time</li>
-          <li>• Once approved and payment is processed, the ticket becomes "Sold"</li>
-        </ul>
+      <div className="mt-8 flex gap-3 bg-primary-50 border border-primary-200 rounded-lg p-6">
+        <Info className="h-5 w-5 text-primary-600 shrink-0 mt-0.5" />
+        <div>
+          <h3 className="text-sm font-semibold text-primary-900 mb-2">How it works</h3>
+          <ul className="text-sm text-primary-800 space-y-1 list-disc list-inside">
+            <li>Your ticket is listed as "Available" for buyers to see.</li>
+            <li>When someone places an order, the ticket becomes "Reserved" for 15 minutes.</li>
+            <li>If the buyer completes payment in that window, the ticket becomes "Sold".</li>
+            <li>If they don't, the order expires automatically and the ticket becomes available again.</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

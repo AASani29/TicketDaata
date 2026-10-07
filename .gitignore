@@ -1,2 +1,12 @@
 /.vscode
 /../mongodb-config.env
+
+# IDE project files (IntelliJ)
+/.idea
+
+# Local dev server logs (from running services directly via mvnw/npm for fast iteration)
+/.devlogs
+
+# Generated Doxygen docs - large, reproducible, accidentally scans node_modules too
+/docs
+/Doxyfile

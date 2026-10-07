@@ -32,6 +32,6 @@ public class CreateTicketRequest {
     @NotBlank
     private String userId; // Owner/Creator of the ticket
 
-    @NotNull
-    private Long sellerId; // from Auth service
+    @NotBlank
+    private String sellerId; // from Auth service
 }

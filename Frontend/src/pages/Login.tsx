@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { User, Lock } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Alert } from '../components/ui/Alert';
 
 export const Login: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -34,59 +38,44 @@ export const Login: React.FC = () => {
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
+        <h1 className="text-2xl font-bold text-center text-secondary-900 mb-8">
           Login to TicketDaata
         </h1>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <Alert variant="error" className="mb-6">
             {error}
-          </div>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Username"
+            name="username"
+            icon={<User className="h-4 w-4" />}
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            icon={<Lock className="h-4 w-4" />}
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Logging in...' : 'Login'}
-          </button>
+          <Button type="submit" fullWidth isLoading={isLoading}>
+            Login
+          </Button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-secondary-600 mt-6 text-sm">
           Don't have an account?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-700">
+          <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
             Sign up here
           </Link>
         </p>

@@ -39,11 +39,12 @@ public class OrderEventPublisher implements OrderEventPublisherInterface {
         log.info("Published order created event for order: {}, ticket: {}", orderId, ticketId);
     }
 
-    public void publishOrderCompleted(String orderId, String ticketId, String userId, BigDecimal totalAmount) {
+    public void publishOrderCompleted(String orderId, String ticketId, String userId, String sellerId, BigDecimal totalAmount) {
         OrderStatusMessage message = OrderStatusMessage.builder()
                 .orderId(orderId)
                 .ticketId(ticketId)
                 .userId(userId)
+                .sellerId(sellerId)
                 .status("COMPLETED")
                 .previousStatus("PENDING")
                 .totalAmount(totalAmount)

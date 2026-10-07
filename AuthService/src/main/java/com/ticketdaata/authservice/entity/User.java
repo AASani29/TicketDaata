@@ -1,5 +1,7 @@
 package com.ticketdaata.authservice.entity;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -19,6 +21,8 @@ public class User {
     private String password;
 
     private String role = "USER";
+
+    private BigDecimal balance = BigDecimal.ZERO;
 
     // Constructors
     public User() {
@@ -70,5 +74,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 }

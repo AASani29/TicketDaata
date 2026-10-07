@@ -14,6 +14,7 @@
     "@types/react-router-dom": "^5.3.3",
     "autoprefixer": "^10.4.20",
     "axios": "^1.12.2",
+    "lucide-react": "^1.52.0",
     "postcss": "^8.4.41",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

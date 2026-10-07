@@ -19,6 +19,6 @@ public class TicketResponse {
     private Double price;
     private TicketStatus status;
     private String userId;
-    private Long sellerId;
+    private String sellerId;
     private Long version;
 }

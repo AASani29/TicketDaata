@@ -41,7 +41,7 @@ public class Ticket {
     private String userId; // Owner/Creator of the ticket
 
     @Indexed
-    private Long sellerId;
+    private String sellerId;
 
     /** Optimistic locking to avoid double-sell */
     @Version

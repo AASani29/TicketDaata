@@ -15,51 +15,66 @@ export interface LoadingState {
   error: string | null;
 }
 
+export type TicketStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD';
+
 export interface Ticket {
   id: string;
-  title: string;
-  description: string;
+  eventName: string;
+  category: string;
+  location: string;
+  eventDate: string;
+  seatInfo?: string;
   price: number;
-  eventId: string;
-  eventName?: string;
+  status: TicketStatus;
   userId: string;
-  status: 'AVAILABLE' | 'SOLD' | 'RESERVED';
-  createdAt: string;
-  updatedAt: string;
+  sellerId: string;
+  version?: number;
 }
 
 export interface CreateTicketRequest {
   eventName: string;
-  description: string;
+  category: string;
+  location: string;
+  eventDate: string;
+  seatInfo?: string;
   price: number;
   userId: string;
-}
-
-export interface UpdateTicketRequest {
-  title?: string;
-  description?: string;
-  price?: number;
-  status?: 'AVAILABLE' | 'SOLD' | 'RESERVED';
+  sellerId: string;
 }
 
 export type TicketResponse = Ticket;
 
 export interface TicketFormData {
   eventName: string;
-  description: string;
+  category: string;
+  location: string;
+  eventDate: string;
+  seatInfo: string;
   price: number;
 }
+
+export type OrderStatus = 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
 
 export interface Order {
   id: string;
   userId: string;
   ticketId: string;
+  ticketTitle?: string;
+  eventName?: string;
+  eventDate?: string;
+  seatInfo?: string;
+  price?: number;
   quantity: number;
   totalAmount: number;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'APPROVED';
-  expiresAt?: string;
+  status: OrderStatus;
   createdAt: string;
   updatedAt: string;
+  expiresAt?: string;
+  paymentId?: string;
+  sellerId?: string;
+  sellerUsername?: string;
+  cancellationReason?: string;
+  timeRemainingMinutes?: number;
 }
 
 export type OrderResponse = Order;
@@ -68,4 +83,20 @@ export interface CreateOrderRequest {
   ticketId: string;
   userId: string;
   quantity: number;
+}
+
+export interface UserBalance {
+  username: string;
+  balance: number;
+}
+
+export interface CartItem {
+  ticketId: string;
+  eventName: string;
+  category: string;
+  location: string;
+  eventDate: string;
+  seatInfo?: string;
+  price: number;
+  sellerId: string;
 }

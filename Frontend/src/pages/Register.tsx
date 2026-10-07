@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { User, Mail, Lock } from 'lucide-react';
 import { useAuthContext } from '../components/AuthProvider';
+import { useToast } from '../components/ui/Toast';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Alert } from '../components/ui/Alert';
 
 export const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +17,7 @@ export const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] = useState('');
   const { register, error } = useAuthContext();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,8 +30,7 @@ export const Register: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Client-side validation
+
     if (formData.password !== formData.confirmPassword) {
       setValidationError('Passwords do not match');
       return;
@@ -43,6 +48,7 @@ export const Register: React.FC = () => {
         email: formData.email,
         password: formData.password
       });
+      showToast('success', 'Account created successfully.');
       navigate('/');
     } catch {
       // Error handled by useAuth hook
@@ -54,89 +60,64 @@ export const Register: React.FC = () => {
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
+        <h1 className="text-2xl font-bold text-center text-secondary-900 mb-8">
           Create Account
         </h1>
 
         {(error || validationError) && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          <Alert variant="error" className="mb-6">
             {error || validationError}
-          </div>
+          </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Username"
+            name="username"
+            icon={<User className="h-4 w-4" />}
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            icon={<Mail className="h-4 w-4" />}
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            icon={<Lock className="h-4 w-4" />}
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
 
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="input-field"
-              required
-            />
-          </div>
+          <Input
+            label="Confirm Password"
+            type="password"
+            name="confirmPassword"
+            icon={<Lock className="h-4 w-4" />}
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Creating Account...' : 'Create Account'}
-          </button>
+          <Button type="submit" fullWidth isLoading={isLoading}>
+            Create Account
+          </Button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-secondary-600 mt-6 text-sm">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:text-blue-700">
+          <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
             Login here
           </Link>
         </p>
