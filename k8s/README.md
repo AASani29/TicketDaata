@@ -1,6 +1,6 @@
 # TicketDaata on Kubernetes
 
-Deploys the whole system — frontend, API gateway, auth/orders/ticket services, MongoDB, and RabbitMQ — to a local [kind](https://kind.sigs.k8s.io/) cluster with plain YAML manifests (no Helm yet; that's a planned follow-up phase).
+Deploys the whole system — frontend, API gateway, auth/orders/ticket services, MongoDB, RabbitMQ, and a Prometheus/Grafana observability stack — to a local [kind](https://kind.sigs.k8s.io/) cluster with plain YAML manifests (no Helm yet; that's a planned follow-up phase).
 
 ## Architecture change: Eureka → Kubernetes-native discovery
 
@@ -37,7 +37,7 @@ The config binds host ports 80/443 to the control-plane node so ingress-nginx is
 
 ## 2. Build and load the images
 
-No registry is used in this phase — images are built locally and loaded straight into kind's node.
+For local dev, images are built and loaded straight into kind's node — no registry involved. (The CI/CD pipeline separately builds and publishes these same images to GHCR on every push to `main`; see the root [`README.md`](../README.md#cicd). That's for having versioned, pullable images available, not something this local workflow depends on.)
 
 ```bash
 docker build -t ticketdaata/api-gateway:local ./APIGateway
@@ -102,9 +102,21 @@ kubectl delete pod -n ticketdaata -l app=auth-service --field-selector status.ph
 kind delete cluster --name ticketdaata
 ```
 
-## Known limitations of this phase
+## Observability: Prometheus & Grafana
 
-- No registry/CI — images are built and loaded locally (see the CI/CD phase for GHCR + automated builds).
-- No Helm chart yet (planned follow-up).
-- No metrics/logs/traces dashboards yet (observability is a separate phase).
-- HPA is CPU-only; there's no load generator wired in yet to actually watch it scale (that's the k6 load-testing phase).
+Prometheus and Grafana run in their own `monitoring` namespace (separate from the app's `ticketdaata` namespace, with its own Ingress — Kubernetes Ingress resources can't reference a Service in a different namespace, so a second Ingress is the correct way to expose Grafana alongside the app's existing one). Everything is provisioned declaratively from ConfigMaps — no manual dashboard import, no PersistentVolumes — so it's fully reproducible from `kubectl apply -k k8s/` alone.
+
+**Access**: `http://localhost/grafana/` — log in with the seeded admin credentials (`admin` / `ticketdaata-admin`, from `k8s/monitoring/grafana-secret.yaml`; change this if you ever point this setup at anything beyond a local kind cluster). Open the **"TicketDaata - Golden Signals"** dashboard, already provisioned on first boot.
+
+**Scrape method**: Prometheus uses static `scrape_configs` targeting the four Spring Boot services' existing ClusterIP Services directly (`auth-service.ticketdaata.svc.cluster.local:9001/actuator/prometheus`, etc.) — not Kubernetes service-discovery, since that would need RBAC (a ServiceAccount + ClusterRole for the Prometheus pod to query the API server) for no real benefit with four known, stable targets. `kubectl port-forward -n monitoring svc/prometheus 9090:9090` and open `/targets` to confirm all four show `UP`.
+
+**Dashboard panels**: HTTP request rate, HTTP p95 latency, JVM heap used, process CPU usage, and target up/down health — one line per service on each panel, grouped by Prometheus's `job` label (which comes from the scrape config's `job_name`, not anything the app emits).
+
+**Known limitation**: API Gateway is reactive (Spring Cloud Gateway on Netty, not Spring MVC), so its actual proxied traffic (`/auth/**`, `/api/**` — essentially all of it) is recorded under the `spring.cloud.gateway.requests` metric, not `http_server_requests_seconds`. The dashboard's HTTP panels will show a `job="api-gateway"` series, but it only reflects hits to the gateway's own actuator/fallback endpoints, not real proxied traffic. The histogram buckets needed to query `spring_cloud_gateway_requests_seconds_bucket` are already enabled in `APIGateway/application.yml`, so adding that series is a follow-up PromQL change to the dashboard JSON, not a re-plumbing job.
+
+## Known limitations
+
+- No Helm chart yet — these are plain Kustomize manifests (planned follow-up).
+- HPA is CPU-only, and there's no load generator wired in to actually watch it scale under real traffic yet (that's the planned k6 load-testing phase).
+- Prometheus's local TSDB and Grafana's state are backed by `emptyDir`, not a PersistentVolume — intentional for a disposable local demo (nothing of value is lost since dashboards/datasources are provisioned from ConfigMaps, not clicked together), but worth knowing if you expect metrics history to survive a pod restart.
+- No kube-state-metrics, node-exporter, or Alertmanager — this phase covers application-level metrics only, not cluster/node-level or alerting.
